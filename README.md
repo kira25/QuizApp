@@ -1,4 +1,4 @@
-# hr_huntlng
+# HR_HuntLNG
 
 Fluter project for the Human resources area
 
