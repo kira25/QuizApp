@@ -1,6 +1,6 @@
-# HR_HuntLNG
+# Quiz of feelings
 
-Fluter project for the Human resources area
+Fluter project for the Human resources area.
 
 ## Getting Started
 
