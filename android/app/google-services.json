@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1048262391656",
+    "firebase_url": "https://huntlng.firebaseio.com",
+    "project_id": "huntlng",
+    "storage_bucket": "huntlng.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048262391656:android:8ffbe948fb7a9f95f588dd",
+        "android_client_info": {
+          "package_name": "com.example.hr_huntlng"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1048262391656-k9ghfqltbf7d3lud5leilvtm429pr91l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPhM0lrpenTg0a9Jg0B6L1uhfAm-uqTz0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1048262391656-k9ghfqltbf7d3lud5leilvtm429pr91l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

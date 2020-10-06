@@ -17,10 +17,17 @@ environment:
   sdk: ">=2.1.0 <3.0.0"
 
 dependencies:
-  flutter_rating_bar: ^3.0.0
-  ##firebase_core: ^0.4.0
-  firebase_database: ^3.0.7
-  firebase_core: ^0.4.0+9
+  flutter_rating_bar: ^3.0.1+1
+  firebase_database: ^4.1.0
+  firebase_auth: ^0.18.1+1
+  firebase_core: ^0.5.0
+  google_sign_in: ^4.5.4
+  equatable: ^1.2.5
+  flutter_bloc: ^6.0.5
+  formz: ^0.3.1
+  bloc: ^6.0.3
+  responsive_screen: ^1.0.0
+
   
  
   flutter:
@@ -45,8 +52,17 @@ flutter:
   
   uses-material-design: true
   assets:
-    - images/mountains.jpg
-    - images/mountains.jpeg
+    - assets/
+
+  fonts:
+    - family: Oswald Bold
+      fonts:
+        - asset: fonts\Oswald-Bold.ttf
+
+    - family: Oswald Regular
+      fonts:
+        - asset: fonts\Oswald-Regular.ttf
+  
     
 module:
   androidX: true
