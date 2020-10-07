@@ -1,7 +1,6 @@
 part of 'login_bloc.dart';
 
 abstract class LoginEvent extends Equatable {
-
   const LoginEvent();
 
   @override
@@ -12,15 +11,14 @@ class LoginInWithEmailButtonPressed extends LoginEvent {
   final String username;
   final String password;
 
-  LoginInWithEmailButtonPressed({ this.username, this.password});
+  LoginInWithEmailButtonPressed({this.username, this.password});
 
   @override
   List<Object> get props => [username, password];
 }
 
-class LoginUsernameChanged extends LoginEvent{
-
-   const LoginUsernameChanged(this.username);
+class LoginUsernameChanged extends LoginEvent {
+  const LoginUsernameChanged(this.username);
 
   final String username;
 
@@ -37,6 +35,10 @@ class LoginPasswordChanged extends LoginEvent {
   List<Object> get props => [password];
 }
 
-class LoginSubmitted extends LoginEvent {
-  const LoginSubmitted();
+class LoginForgotPassword extends LoginEvent {
+  final String username;
+
+  LoginForgotPassword(this.username);
+  @override
+  List<Object> get props => [username];
 }

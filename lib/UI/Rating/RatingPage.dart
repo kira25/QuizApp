@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
+import 'package:hr_huntlng/utils/colors_fonts.dart';
+import 'package:responsive_screen/responsive_screen.dart';
 
 // final Firebase app = FirebaseApp(
 
@@ -37,59 +39,57 @@ class _RatingPageState extends State<RatingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Function wp = Screen(context).wp;
+    final Function hp = Screen(context).hp;
     return WillPopScope(
       onWillPop: () async => false,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.amber,
-        ),
         home: Builder(
           builder: (context) => Scaffold(
             body: Scaffold(
               appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
                 leading: IconButton(
-                    icon: Icon(Icons.exit_to_app),
+                    iconSize: wp(8),
+                    color: kaccentcolor,
+                    icon: Icon(Icons.arrow_back),
                     onPressed: () {
                       context.bloc<AuthBloc>().add(UserLoggedOut());
                     }),
               ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(
-                      height: 1.0,
-                    ),
-                    _heading('How do you feel today?'),
-                    _ratingBar(_ratingBarMode),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    // _rating != null
-                    //     ? Text(
-                    //         "Rating: $_rating",
-                    //         style: TextStyle(fontWeight: FontWeight.bold),
-                    //       )
-                    //     : Container(),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Valores('Servicio al cliente'),
-                    Valores('Trabajo en equipo'),
-                    Valores('Confidencialidad'),
-                    Valores('Innovacion'),
-                    Valores('Atencion al detalle'),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: () {
-                        InsertarFirebaseDatabase();
-                        print('Se ingresaron los datos');
-                      },
-                    )
-                  ],
+              body: Container(
+                color: Colors.white,
+                child: Center(
+                  child: Column(
+                    children: <Widget>[
+                      _heading('How do you feel today?', wp(6), hp(4)),
+                      _ratingBar(_ratingBarMode),
+                      // _rating != null
+                      //     ? Text(
+                      //         "Rating: $_rating",
+                      //         style: TextStyle(fontWeight: FontWeight.bold),
+                      //       )
+                      //     : Container(),
+                      SizedBox(
+                        height: hp(3),
+                      ),
+                      Valores('Servicio al cliente', hp(2)),
+                      Valores('Trabajo en equipo', hp(2)),
+                      Valores('Confidencialidad', hp(2)),
+                      Valores('Innovacion', hp(2)),
+                      Valores('Atencion al detalle', hp(2)),
+                      SizedBox(height: hp(3),),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: () {
+                          InsertarFirebaseDatabase();
+                          print('Se ingresaron los datos');
+                        },
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -99,30 +99,31 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  Widget Valores(String valor) {
+  Widget Valores(String valor, double hp) {
     return Container(
-        child: Padding(
-      padding: const EdgeInsets.all(10.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Text(valor),
-          RatingBar(
-            initialRating: 3,
-            allowHalfRating: true,
-            unratedColor: Colors.grey[200],
-            itemCount: 5,
-            itemPadding: EdgeInsets.symmetric(horizontal: 10.0),
-            itemBuilder: (context, _) => Icon(
-              _selectedIcon ?? Icons.star,
-              color: Colors.amber,
-            ),
-            onRatingUpdate: (rating) {
-              print(rating);
-            },
+      margin: EdgeInsets.only(bottom: hp),
+        child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(valor),
+        SizedBox(
+          height: hp,
+        ),
+        RatingBar(
+          initialRating: 3,
+          allowHalfRating: true,
+          unratedColor: Colors.grey[200],
+          itemCount: 5,
+          itemPadding: EdgeInsets.symmetric(horizontal: 10.0),
+          itemBuilder: (context, _) => Icon(
+            _selectedIcon ?? Icons.star,
+            color: Colors.amber,
           ),
-        ],
-      ),
+          onRatingUpdate: (rating) {
+            print(rating);
+          },
+        ),
+      ],
     ));
   }
 
@@ -190,17 +191,17 @@ class _RatingPageState extends State<RatingPage> {
   }
 }
 
-Widget _heading(String text) => Column(
+Widget _heading(String text, double wp, double hp) => Column(
       children: [
         Text(
           text,
           style: TextStyle(
-            fontWeight: FontWeight.w300,
-            fontSize: 24.0,
-          ),
+              fontFamily: fontOswaldBold,
+              fontSize: wp,
+              color: kdarkprimarycolor),
         ),
         SizedBox(
-          height: 50.0,
+          height: hp,
         ),
       ],
     );

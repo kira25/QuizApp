@@ -15,10 +15,19 @@ class AuthService {
   }
 
   signInWithEmailAndPassword(String username, password) async {
-    final User user = (await _auth.signInWithEmailAndPassword(
-            email: username, password: password))
-        .user;
-    return user;
+    try {
+      final User user = (await _auth.signInWithEmailAndPassword(
+              email: username, password: password))
+          .user;
+      return user;
+    } on FirebaseException catch (e) {
+      print('Exception:  ${e.message}');
+    }
+  }
+
+  sendPasswordResetEmail(String email) async {
+    print('SendEmail');
+    await _auth.sendPasswordResetEmail(email: email);
   }
 
   Future<String> signInWithGoogle() async {

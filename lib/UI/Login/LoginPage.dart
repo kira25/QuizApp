@@ -1,9 +1,11 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hr_huntlng/UI/ForgotPassword/ForgotPassword.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
+import 'package:hr_huntlng/utils/colors_fonts.dart';
+import 'package:responsive_screen/responsive_screen.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -16,7 +18,9 @@ class LoginPage extends StatelessWidget {
           return Container(
             child: BlocProvider<LoginBloc>(
               create: (context) => LoginBloc(authenticationBloc, authService),
-              child: SignInForm(),
+              child: SignInForm(
+                authBloc: authenticationBloc,
+              ),
             ),
           );
         }
@@ -48,45 +52,31 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class SignInForm extends StatefulWidget {
-  const SignInForm({
+class SignInForm extends StatelessWidget {
+  AuthBloc authBloc;
+
+  SignInForm({
+    this.authBloc,
     Key key,
   }) : super(key: key);
 
-  @override
-  _SignInFormState createState() => _SignInFormState();
-}
-
-class _SignInFormState extends State<SignInForm> {
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
-  bool _autoValidate = false;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
+    final Function wp = Screen(context).wp;
+    final Function hp = Screen(context).hp;
+
     _onLoginButtonPressed() {
-      if (_key.currentState.validate()) {
-        context.bloc<LoginBloc>().add(LoginInWithEmailButtonPressed(
-            username: _emailController.text,
-            password: _passwordController.text));
-      } else {
-        setState(() {
-          _autoValidate = true;
-        });
-      }
+      context.bloc<LoginBloc>().add(LoginInWithEmailButtonPressed(
+          username: _emailController.text, password: _passwordController.text));
     }
 
     void _showError(String error) {
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text(error),
-        backgroundColor: Theme.of(context).errorColor,
       ));
     }
 
@@ -105,43 +95,37 @@ class _SignInFormState extends State<SignInForm> {
           } else {
             return Form(
               key: _key,
-              autovalidate: _autoValidate,
               child: SingleChildScrollView(
                 child: new Container(
                   height: MediaQuery.of(context).size.height,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    // image: DecorationImage(
-                    //   colorFilter: new ColorFilter.mode(
-                    //       Colors.black.withOpacity(0.05), BlendMode.dstATop),
-                    //   image: AssetImage('images/mountains.jpg'),
-                    //   fit: BoxFit.cover,
-                    // ),
                   ),
                   child: new Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                        padding: EdgeInsets.all(120.0),
+                        padding: EdgeInsets.all(wp(14)),
                         child: Center(
-                          child: Icon(
-                            Icons.headset_mic,
-                            color: Colors.redAccent,
-                            size: 50.0,
-                          ),
-                        ),
+                            child: Image.asset(
+                          './assets/examen.png',
+                          height: hp(15),
+                          width: wp(30),
+                        )),
                       ),
                       new Row(
                         children: <Widget>[
                           new Expanded(
                             child: new Padding(
-                              padding: const EdgeInsets.only(left: 40.0),
+                              padding: EdgeInsets.only(
+                                left: wp(10),
+                              ),
                               child: new Text(
-                                "EMAIL",
+                                "Email",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.redAccent,
-                                  fontSize: 15.0,
+                                  fontFamily: fontOswaldBold,
+                                  color: kdarkprimarycolor,
+                                  fontSize: wp(5),
                                 ),
                               ),
                             ),
@@ -149,57 +133,59 @@ class _SignInFormState extends State<SignInForm> {
                         ],
                       ),
                       new Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: const EdgeInsets.only(
-                            left: 40.0, right: 40.0, top: 10.0),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                                color: Colors.redAccent,
-                                width: 0.5,
-                                style: BorderStyle.solid),
-                          ),
-                        ),
-                        padding: const EdgeInsets.only(left: 0.0, right: 10.0),
-                        child: new Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            new Expanded(
-                              child: TextFormField(
-                                controller: _emailController,
-                                validator: (value) {
-                                  if (value == null) {
-                                    return 'Email is required';
-                                  }
-                                  return null;
-                                },
-                                textAlign: TextAlign.left,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'samarthagarwal@live.com',
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                ),
+                        margin: EdgeInsets.only(
+                            left: wp(10), right: wp(10), top: hp(1)),
+                        child: BlocBuilder<LoginBloc, LoginState>(
+                          buildWhen: (previous, current) =>
+                              previous.username != current.username,
+                          builder: (context, state) {
+                            return TextField(
+                              autofocus: true,
+                              key: const Key(
+                                  'loginForm_usernameInput_textField'),
+                              keyboardType: TextInputType.emailAddress,
+                              controller: _emailController,
+                              onChanged: (username) => context
+                                  .bloc<LoginBloc>()
+                                  .add(LoginUsernameChanged(username)),
+                              textAlign: TextAlign.left,
+                              decoration: InputDecoration(
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: wp(0.5),
+                                        color: kdarkprimarycolor)),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: wp(0.5),
+                                        color: kdarkprimarycolor)),
+                                errorStyle: TextStyle(
+                                    fontFamily: fontOswaldRegular,
+                                    color: kaccentcolor,
+                                    fontSize: wp(4)),
+                                errorText: state.username.invalid
+                                    ? 'Invalid username'
+                                    : null,
+                                hintText: 'example@live.com',
+                                hintStyle: TextStyle(color: Colors.grey),
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
-                      Divider(
-                        height: 24.0,
+                      SizedBox(
+                        height: hp(4),
                       ),
                       new Row(
                         children: <Widget>[
                           new Expanded(
                             child: new Padding(
-                              padding: const EdgeInsets.only(left: 40.0),
+                              padding: EdgeInsets.only(left: wp(10)),
                               child: new Text(
-                                "PASSWORD",
+                                "Password",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.redAccent,
-                                  fontSize: 15.0,
+                                  fontFamily: fontOswaldBold,
+                                  color: kdarkprimarycolor,
+                                  fontSize: wp(5),
                                 ),
                               ),
                             ),
@@ -207,69 +193,73 @@ class _SignInFormState extends State<SignInForm> {
                         ],
                       ),
                       new Container(
-                        width: MediaQuery.of(context).size.width,
-                        margin: const EdgeInsets.only(
-                            left: 40.0, right: 40.0, top: 10.0),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border(
-                            bottom: BorderSide(
-                                color: Colors.redAccent,
-                                width: 0.5,
-                                style: BorderStyle.solid),
-                          ),
-                        ),
-                        padding: const EdgeInsets.only(left: 0.0, right: 10.0),
-                        child: new Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            new Expanded(
-                              child: TextFormField(
-                                controller: _passwordController,
-                                validator: (value) {
-                                  if (value == null) {
-                                    return 'Password is required';
-                                  }
-                                  return null;
-                                },
-                                obscureText: true,
-                                textAlign: TextAlign.left,
-                                decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: '*********',
-                                  hintStyle: TextStyle(color: Colors.grey),
-                                ),
+                        margin: EdgeInsets.only(
+                            left: wp(10), right: wp(10), top: hp(1)),
+                        child: BlocBuilder<LoginBloc, LoginState>(
+                          buildWhen: (previous, current) =>
+                              previous.password != current.password,
+                          builder: (context, state) {
+                            return TextField(
+                              onChanged: (value) => context
+                                  .bloc<LoginBloc>()
+                                  .add(LoginPasswordChanged(value)),
+                              controller: _passwordController,
+                              obscureText: true,
+                              textAlign: TextAlign.left,
+                              decoration: InputDecoration(
+                                focusedBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: wp(0.5),
+                                        color: kdarkprimarycolor)),
+                                enabledBorder: UnderlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: wp(0.5),
+                                        color: kdarkprimarycolor)),
+                                errorStyle: TextStyle(
+                                    fontFamily: fontOswaldRegular,
+                                    color: kaccentcolor,
+                                    fontSize: wp(4)),
+                                errorText: state.password.invalid
+                                    ? 'Invalid password'
+                                    : null,
+                                hintText: '*********',
+                                hintStyle: TextStyle(color: Colors.grey),
                               ),
-                            ),
-                          ],
+                            );
+                          },
                         ),
                       ),
-                      Divider(
-                        height: 24.0,
+                      SizedBox(
+                        height: hp(4),
                       ),
                       new Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
                           Padding(
-                            padding: const EdgeInsets.only(right: 20.0),
+                            padding: EdgeInsets.only(right: wp(5)),
                             child: new FlatButton(
                               child: new Text(
                                 "Forgot Password?",
                                 style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.redAccent,
-                                  fontSize: 15.0,
+                                  fontFamily: fontOswaldRegular,
+                                  color: kdarkprimarycolor,
+                                  fontSize: wp(4),
                                 ),
-                                textAlign: TextAlign.end,
                               ),
-                              onPressed: () => {},
+                              onPressed: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ForgotPassword(
+                                            authBloc: authBloc,
+                                          ))),
                             ),
                           ),
                         ],
                       ),
+                      SizedBox(
+                        height: hp(6),
+                      ),
                       new Container(
-                        width: MediaQuery.of(context).size.width,
                         margin: const EdgeInsets.only(
                             left: 30.0, right: 30.0, top: 20.0),
                         alignment: Alignment.center,
@@ -280,9 +270,9 @@ class _SignInFormState extends State<SignInForm> {
                                 shape: new RoundedRectangleBorder(
                                   borderRadius: new BorderRadius.circular(30.0),
                                 ),
-                                color: Colors.redAccent,
+                                color: kaccentcolor,
                                 onPressed: state is LoginLoading
-                                    ? () {}
+                                    ? null
                                     : _onLoginButtonPressed,
                                 child: new Container(
                                   padding: const EdgeInsets.symmetric(
@@ -294,9 +284,10 @@ class _SignInFormState extends State<SignInForm> {
                                     children: <Widget>[
                                       new Expanded(
                                         child: Text(
-                                          "LOGIN",
+                                          "Login",
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
+                                              fontSize: wp(4),
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold),
                                         ),
