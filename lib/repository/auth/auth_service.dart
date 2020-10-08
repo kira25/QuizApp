@@ -5,8 +5,18 @@ import 'package:google_sign_in/google_sign_in.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  createAccount(String email, password, displayname) async {
+    await _auth
+        .createUserWithEmailAndPassword(email: email, password: password)
+        .then((value) async {
+      value.user.updateProfile(displayName: displayname);
+    });
+  }
+
   getCurrentuser() {
     final User user = _auth.currentUser;
+
     return user;
   }
 

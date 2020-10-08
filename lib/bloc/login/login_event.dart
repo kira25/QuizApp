@@ -42,3 +42,17 @@ class LoginForgotPassword extends LoginEvent {
   @override
   List<Object> get props => [username];
 }
+
+class RegisterDisplayNameChanged extends LoginEvent {
+  final String displayName;
+
+  RegisterDisplayNameChanged(this.displayName);
+
+  @override
+  List<Object> get props => [displayName];
+}
+
+
+class RegisterButtonPressed extends LoginEvent {
+  const RegisterButtonPressed();
+}

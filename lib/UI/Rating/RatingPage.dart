@@ -1,8 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
+import 'package:hr_huntlng/bloc/rating/rating_bloc.dart';
+import 'package:hr_huntlng/repository/auth/auth_service.dart';
+import 'package:hr_huntlng/repository/rating/rating_service.dart';
 import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
@@ -15,32 +20,30 @@ import 'package:responsive_screen/responsive_screen.dart';
 //     ), name: null
 //   );
 
-class RatingPage extends StatefulWidget {
-  @override
-  _RatingPageState createState() => _RatingPageState();
-}
+class RatingPage extends StatelessWidget {
+  RatingPage({this.user});
 
-class _RatingPageState extends State<RatingPage> {
   //FIREBASE DATABASE
-  final notesReference = FirebaseDatabase.instance.reference().child('valores');
-
-  var _ratingController = TextEditingController();
+  final notesReference = FirebaseDatabase.instance.reference();
+  User user;
 
   var _rating = [];
 
-  int _ratingBarMode = 3;
   IconData _selectedIcon;
 
-  @override
-  void initState() {
-    _ratingController.text = "3.0";
-    super.initState();
-  }
+  double clientService;
+  double teamWork;
+  double confidence;
+  double innovation;
+  double attentionDetail;
 
   @override
   Widget build(BuildContext context) {
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
+    final authService = RepositoryProvider.of<AuthService>(context);
+    final ratingService = RepositoryProvider.of<RatingService>(context);
+
     return WillPopScope(
       onWillPop: () async => false,
       child: MaterialApp(
@@ -59,36 +62,84 @@ class _RatingPageState extends State<RatingPage> {
                       context.bloc<AuthBloc>().add(UserLoggedOut());
                     }),
               ),
-              body: Container(
-                color: Colors.white,
-                child: Center(
-                  child: Column(
-                    children: <Widget>[
-                      _heading('How do you feel today?', wp(6), hp(4)),
-                      _ratingBar(_ratingBarMode),
-                      // _rating != null
-                      //     ? Text(
-                      //         "Rating: $_rating",
-                      //         style: TextStyle(fontWeight: FontWeight.bold),
-                      //       )
-                      //     : Container(),
-                      SizedBox(
-                        height: hp(3),
-                      ),
-                      Valores('Servicio al cliente', hp(2)),
-                      Valores('Trabajo en equipo', hp(2)),
-                      Valores('Confidencialidad', hp(2)),
-                      Valores('Innovacion', hp(2)),
-                      Valores('Atencion al detalle', hp(2)),
-                      SizedBox(height: hp(3),),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: () {
-                          InsertarFirebaseDatabase();
-                          print('Se ingresaron los datos');
-                        },
-                      )
-                    ],
+              body: SingleChildScrollView(
+                child: BlocProvider<RatingBloc>(
+                  create: (context) => RatingBloc(
+                      authService: authService, ratingService: ratingService),
+                  child: BlocListener<RatingBloc, RatingState>(
+                    listener: (context, state) {
+                      if (state is QuizSended) {
+                        showDialog(
+                          context: context,
+                          builder: (_) {
+                            return CupertinoAlertDialog(
+                              title: Text('Cuestionario enviado'),
+                            );
+                          },
+                        );
+                      }
+                    },
+                    child: BlocBuilder<RatingBloc, RatingState>(
+                      builder: (context, state) {
+                        return Container(
+                          color: Colors.white,
+                          child: Center(
+                            child: Column(
+                              children: <Widget>[
+                                _heading(
+                                    'How do you feel today ?',
+                                    wp(6),
+                                    hp(4)),
+                                // _ratingBar(_ratingBarMode),
+                                // _rating != null
+                                //     ? Text(
+                                //         "Rating: ",
+                                //         style: TextStyle(fontWeight: FontWeight.bold),
+                                //       )
+                                //     : Container(),
+                                SizedBox(
+                                  height: hp(3),
+                                ),
+                                valores('Servicio al cliente', hp(2),
+                                    clientService),
+                                valores('Trabajo en equipo', hp(2), teamWork),
+                                valores('Confidencialidad', hp(2), confidence),
+                                valores('Innovacion', hp(2), innovation),
+                                valores('Atencion al detalle', hp(2),
+                                    attentionDetail),
+                                SizedBox(
+                                  height: hp(3),
+                                ),
+                                new Container(
+                                  width: wp(80),
+                                  height: hp(8),
+                                  margin: EdgeInsets.only(
+                                      left: wp(7), right: wp(7), top: hp(2)),
+                                  child: new FlatButton(
+                                    shape: new RoundedRectangleBorder(
+                                      borderRadius:
+                                          new BorderRadius.circular(30.0),
+                                    ),
+                                    color: kaccentcolor,
+                                    onPressed: () => context
+                                        .bloc<RatingBloc>()
+                                        .add(SendQuiz()),
+                                    child: Text(
+                                      "Login",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                          fontSize: wp(4),
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
@@ -99,96 +150,126 @@ class _RatingPageState extends State<RatingPage> {
     );
   }
 
-  Widget Valores(String valor, double hp) {
-    return Container(
-      margin: EdgeInsets.only(bottom: hp),
-        child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        Text(valor),
-        SizedBox(
-          height: hp,
-        ),
-        RatingBar(
-          initialRating: 3,
-          allowHalfRating: true,
-          unratedColor: Colors.grey[200],
-          itemCount: 5,
-          itemPadding: EdgeInsets.symmetric(horizontal: 10.0),
-          itemBuilder: (context, _) => Icon(
-            _selectedIcon ?? Icons.star,
-            color: Colors.amber,
-          ),
-          onRatingUpdate: (rating) {
-            print(rating);
-          },
-        ),
-      ],
-    ));
-  }
-
-  Widget _ratingBar(int mode) {
-    String Estado;
-
-    return RatingBar(
-      initialRating: 2,
-      itemCount: 3,
-      itemSize: 50,
-      itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-      itemBuilder: (context, index) {
-        switch (index) {
-          case 0:
-            Estado = "Mal";
-            return Icon(
-              Icons.sentiment_dissatisfied,
-              color: Colors.redAccent,
-            );
-          // case 1:
-          //   return Icon(
-          //     Icons.sentiment_dissatisfied,
-          //     color: Colors.redAccent,
-          //   );
-          case 1:
-            Estado = "Normal";
-
-            return Icon(
-              Icons.sentiment_neutral,
-              color: Colors.amber,
-            );
-          case 2:
-            Estado = "Bien";
-
-            return Icon(
-              Icons.sentiment_satisfied,
-              color: Colors.lightGreen,
-            );
-          // case 4:
-          //   return Icon(
-          //     Icons.sentiment_very_satisfied,
-          //     color: Colors.green,
-          //   );
-          default:
-            return Container();
-        }
-      },
-      onRatingUpdate: (rating) {
-        if (rating == 0) {
-          _rating[5] = Estado;
-        }
+  Widget valores(String valor, double hp, double value) {
+    return BlocBuilder<RatingBloc, RatingState>(
+      builder: (context, state) {
+        return Container(
+            margin: EdgeInsets.only(bottom: hp),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Text(
+                  valor,
+                  style: TextStyle(fontFamily: fontOswaldBold, fontSize: hp),
+                ),
+                SizedBox(
+                  height: hp,
+                ),
+                RatingBar(
+                  initialRating: 3,
+                  allowHalfRating: true,
+                  unratedColor: Colors.grey[200],
+                  itemCount: 5,
+                  itemPadding: EdgeInsets.symmetric(horizontal: 10.0),
+                  itemBuilder: (context, _) => Icon(
+                    _selectedIcon ?? Icons.star,
+                    color: Colors.amber,
+                  ),
+                  onRatingUpdate: (rating) {
+                    switch (valor) {
+                      case 'Servicio al cliente':
+                        context
+                            .bloc<RatingBloc>()
+                            .add(ClientServiceEvent(clientService: rating));
+                        break;
+                      case 'Trabajo en equipo':
+                        context
+                            .bloc<RatingBloc>()
+                            .add(TeamWorkEvent(teamWork: rating));
+                        break;
+                      case 'Confidencialidad':
+                        context
+                            .bloc<RatingBloc>()
+                            .add(ConfidenceEvent(confidence: rating));
+                        break;
+                      case 'Innovacion':
+                        context
+                            .bloc<RatingBloc>()
+                            .add(InnovationEvent(innovation: rating));
+                        break;
+                      case 'Atencion al detalle':
+                        context.bloc<RatingBloc>().add(
+                            AttentionDetailsEvent(attentionDetails: rating));
+                        break;
+                      default:
+                    }
+                  },
+                ),
+              ],
+            ));
       },
     );
   }
 
-  void InsertarFirebaseDatabase() {
-    notesReference.push().set({
-      'AttentionDetail': _rating[0],
-      'ClientService': _rating[1],
-      'Confidence': _rating[2],
-      'Innovation': _rating[3],
-      'TeamWork': _rating[4],
-      'Estado': _rating[5],
-    }).then((_) {});
-  }
+  // Widget _ratingBar(int mode) {
+  //   String Estado;
+
+  //   return RatingBar(
+  //     initialRating: 2,
+  //     itemCount: 3,
+  //     itemSize: 50,
+  //     itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+  //     itemBuilder: (context, index) {
+  //       switch (index) {
+  //         case 0:
+  //           Estado = "Mal";
+  //           return Icon(
+  //             Icons.sentiment_dissatisfied,
+  //             color: Colors.redAccent,
+  //           );
+  //         // case 1:
+  //         //   return Icon(
+  //         //     Icons.sentiment_dissatisfied,
+  //         //     color: Colors.redAccent,
+  //         //   );
+  //         case 1:
+  //           Estado = "Normal";
+
+  //           return Icon(
+  //             Icons.sentiment_neutral,
+  //             color: Colors.amber,
+  //           );
+  //         case 2:
+  //           Estado = "Bien";
+
+  //           return Icon(
+  //             Icons.sentiment_satisfied,
+  //             color: Colors.lightGreen,
+  //           );
+
+  //         default:
+  //           return Container();
+  //       }
+  //     },
+  //     onRatingUpdate: (rating) {
+  //       if (rating == 0) {
+  //         _rating[5] = Estado;
+  //       }
+  //     },
+  //   );
+  // }
+
+  // void sendRating() {
+
+  //   notesReference.push().set({
+  //     'AttentionDetail': _rating[0],
+  //     'ClientService': _rating[1],
+  //     'Confidence': _rating[2],
+  //     'Innovation': _rating[3],
+  //     'TeamWork': _rating[4],
+  //     'Estado': _rating[5],
+  //   }).then((_) {});
+  // }
 }
 
 Widget _heading(String text, double wp, double hp) => Column(

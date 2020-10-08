@@ -5,22 +5,23 @@ import 'package:hr_huntlng/UI/Home/HomePage.dart';
 import 'package:hr_huntlng/UI/Login/LoginPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
+import 'package:hr_huntlng/repository/rating/rating_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
       options: FirebaseOptions(
-        appId: '1:1048262391656:android:8ffbe948fb7a9f95f588dd',
+          appId: '1:1048262391656:android:8ffbe948fb7a9f95f588dd',
           messagingSenderId: '...',
-         
           projectId: '...',
           apiKey: 'AIzaSyAPhM0lrpenTg0a9Jg0B6L1uhfAm-uqTz0',
           databaseURL: 'https://huntlng.firebaseio.com'));
-  runApp(RepositoryProvider(
-    create: (context) {
-      return AuthService();
-    },
+  runApp(MultiRepositoryProvider(
+    providers: [
+      RepositoryProvider(create: (context) => AuthService()),
+      RepositoryProvider(create: (context) => RatingService()),
+    ],
     child: BlocProvider<AuthBloc>(
       create: (context) {
         final authService = RepositoryProvider.of<AuthService>(context);
@@ -43,7 +44,9 @@ class MyApp extends StatelessWidget {
       home: new BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthenticationAuthenticated) {
-            return MainScreen(user: state.user,);
+            return MainScreen(
+              user: state.user,
+            );
           } else {
             return LoginPage();
           }

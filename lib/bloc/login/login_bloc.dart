@@ -34,7 +34,28 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield _mapPasswordChangedToState(event, state);
     } else if (event is LoginForgotPassword) {
       yield* _mapLoginSendPassword(event);
+    } else if (event is RegisterDisplayNameChanged) {
+      yield _mapRegisterDisplayNameChanged(event, state);
+    } else if (event is RegisterButtonPressed) {
+      yield* _mapRegisterButtonPressed(event, state);
     }
+  }
+
+  Stream<LoginState> _mapRegisterButtonPressed(
+      RegisterButtonPressed event, LoginState state) async* {
+    await _authenticationService.createAccount(
+        state.username.value, state.password.value, state.displayName);
+    yield RegisterSuccess();
+    User user = await _authenticationService.signInWithEmailAndPassword(
+        state.username.value, state.password.value);
+    _authenticationBloc.add(UserLoggedIn(user: user));
+    yield LoginSuccess();
+    yield LoginInitial();
+  }
+
+  LoginState _mapRegisterDisplayNameChanged(
+      RegisterDisplayNameChanged event, LoginState state) {
+    return state.copyWith(displayName: event.displayName);
   }
 
   LoginState _mapUsernameChangedToState(

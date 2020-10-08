@@ -1,22 +1,21 @@
 part of 'login_bloc.dart';
 
 class LoginState extends Equatable {
-  const LoginState({
-    this.username = const Username.pure(),
-    this.password = const Password.pure(),
-  });
+  const LoginState(
+      {this.username = const Username.pure(),
+      this.password = const Password.pure(),
+      this.displayName});
 
   final Username username;
   final Password password;
+  final String displayName;
 
-  LoginState copyWith({
-    Username username,
-    Password password,
-  }) {
+  LoginState copyWith(
+      {Username username, Password password, String displayName}) {
     return LoginState(
-      username: username ?? this.username,
-      password: password ?? this.password,
-    );
+        username: username ?? this.username,
+        password: password ?? this.password,
+        displayName: displayName ?? this.displayName);
   }
 
   @override
@@ -39,3 +38,5 @@ class LoginFailure extends LoginState {
 }
 
 class LoginSendPassword extends LoginState {}
+
+class RegisterSuccess extends LoginState {}

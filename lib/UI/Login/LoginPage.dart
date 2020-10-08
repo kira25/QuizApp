@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/UI/ForgotPassword/ForgotPassword.dart';
+import 'package:hr_huntlng/UI/Register/RegisterPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
@@ -53,13 +54,12 @@ class LoginPage extends StatelessWidget {
 }
 
 class SignInForm extends StatelessWidget {
-  AuthBloc authBloc;
-
   SignInForm({
     this.authBloc,
     Key key,
   }) : super(key: key);
 
+  final AuthBloc authBloc;
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
@@ -102,10 +102,9 @@ class SignInForm extends StatelessWidget {
                     color: Colors.white,
                   ),
                   child: new Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Container(
-                        padding: EdgeInsets.all(wp(14)),
+                        padding: EdgeInsets.all(wp(23)),
                         child: Center(
                             child: Image.asset(
                           './assets/examen.png',
@@ -140,7 +139,7 @@ class SignInForm extends StatelessWidget {
                               previous.username != current.username,
                           builder: (context, state) {
                             return TextField(
-                              autofocus: true,
+                              autofocus: false,
                               key: const Key(
                                   'loginForm_usernameInput_textField'),
                               keyboardType: TextInputType.emailAddress,
@@ -165,7 +164,6 @@ class SignInForm extends StatelessWidget {
                                 errorText: state.username.invalid
                                     ? 'Invalid username'
                                     : null,
-                                hintText: 'example@live.com',
                                 hintStyle: TextStyle(color: Colors.grey),
                               ),
                             );
@@ -177,16 +175,14 @@ class SignInForm extends StatelessWidget {
                       ),
                       new Row(
                         children: <Widget>[
-                          new Expanded(
-                            child: new Padding(
-                              padding: EdgeInsets.only(left: wp(10)),
-                              child: new Text(
-                                "Password",
-                                style: TextStyle(
-                                  fontFamily: fontOswaldBold,
-                                  color: kdarkprimarycolor,
-                                  fontSize: wp(5),
-                                ),
+                          new Padding(
+                            padding: EdgeInsets.only(left: wp(10)),
+                            child: new Text(
+                              "Password",
+                              style: TextStyle(
+                                fontFamily: fontOswaldBold,
+                                color: kdarkprimarycolor,
+                                fontSize: wp(5),
                               ),
                             ),
                           ),
@@ -222,7 +218,6 @@ class SignInForm extends StatelessWidget {
                                 errorText: state.password.invalid
                                     ? 'Invalid password'
                                     : null,
-                                hintText: '*********',
                                 hintStyle: TextStyle(color: Colors.grey),
                               ),
                             );
@@ -230,75 +225,85 @@ class SignInForm extends StatelessWidget {
                         ),
                       ),
                       SizedBox(
-                        height: hp(4),
+                        height: hp(5),
                       ),
-                      new Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(right: wp(5)),
-                            child: new FlatButton(
-                              child: new Text(
-                                "Forgot Password?",
-                                style: TextStyle(
-                                  fontFamily: fontOswaldRegular,
-                                  color: kdarkprimarycolor,
-                                  fontSize: wp(4),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Text(
+                              'Sign in',
+                              style: TextStyle(
+                                  fontFamily: fontOswaldBold,
+                                  fontSize: wp(6),
+                                  color: kdarkprimarycolor),
+                            ),
+                            ClipOval(
+                              child: Container(
+                                height: hp(8),
+                                width: wp(16),
+                                color: kaccentcolor,
+                                child: BlocBuilder<LoginBloc, LoginState>(
+                                  builder: (context, state) {
+                                    return RaisedButton(
+                                      onPressed: state.username.invalid ==
+                                                  true ||
+                                              state.password.invalid == true ||
+                                              state.username.value.isEmpty ==
+                                                  true ||
+                                              state.password.value.isEmpty ==
+                                                  true
+                                          ? null
+                                          : _onLoginButtonPressed,
+                                      child: Icon(
+                                        Icons.arrow_forward,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
-                              onPressed: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => ForgotPassword(
-                                            authBloc: authBloc,
-                                          ))),
+                            )
+                          ]),
+                      SizedBox(
+                        height: hp(8),
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RegisterPage(
+                                          authBloc: authBloc,
+                                        ))),
+                            child: Text(
+                              'Sign up',
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontFamily: fontOswaldBold,
+                                  fontSize: wp(4.5),
+                                  color: kdarkprimarycolor),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => ForgotPassword(
+                                          authBloc: authBloc,
+                                        ))),
+                            child: Text(
+                              "Forgot Password?",
+                              style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                fontFamily: fontOswaldBold,
+                                color: kdarkprimarycolor,
+                                fontSize: wp(4.5),
+                              ),
                             ),
                           ),
                         ],
-                      ),
-                      SizedBox(
-                        height: hp(6),
-                      ),
-                      new Container(
-                        margin: const EdgeInsets.only(
-                            left: 30.0, right: 30.0, top: 20.0),
-                        alignment: Alignment.center,
-                        child: new Row(
-                          children: <Widget>[
-                            new Expanded(
-                              child: new FlatButton(
-                                shape: new RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.circular(30.0),
-                                ),
-                                color: kaccentcolor,
-                                onPressed: state is LoginLoading
-                                    ? null
-                                    : _onLoginButtonPressed,
-                                child: new Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 20.0,
-                                    horizontal: 20.0,
-                                  ),
-                                  child: new Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      new Expanded(
-                                        child: Text(
-                                          "Login",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: wp(4),
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),

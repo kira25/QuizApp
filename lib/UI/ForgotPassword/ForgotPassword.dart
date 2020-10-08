@@ -7,8 +7,8 @@ import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
 class ForgotPassword extends StatelessWidget {
-  AuthBloc authBloc;
-  TextEditingController emailController = TextEditingController();
+  final AuthBloc authBloc;
+  final TextEditingController emailController = TextEditingController();
   ForgotPassword({this.authBloc});
 
   @override
