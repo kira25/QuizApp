@@ -6,17 +6,22 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  createAccount(String email, password, displayname) async {
-    await _auth
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((value) async {
-      value.user.updateProfile(displayName: displayname);
-    });
+  createAccount(String email, String password) async {
+    UserCredential user = await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
+    return user.user;
+  }
+
+  updateProfile(User user, String displayName) async {
+    await user.updateProfile(displayName: displayName);
+    await user.reload();
+    User newUser = _auth.currentUser;
+    return newUser;
   }
 
   getCurrentuser() {
     final User user = _auth.currentUser;
-
+    print('getCurrentUser : $user');
     return user;
   }
 

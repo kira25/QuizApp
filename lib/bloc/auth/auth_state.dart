@@ -30,3 +30,12 @@ class AuthenticationFailure extends AuthState {
   @override
   List<Object> get props => [message];
 }
+
+class AuthenticationAdmin extends AuthState {
+  final User user;
+  final data;
+
+  AuthenticationAdmin({this.user, this.data});
+  @override
+  List<Object> get props => [user, data];
+}

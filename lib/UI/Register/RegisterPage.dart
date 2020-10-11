@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/UI/Home/HomePage.dart';
+import 'package:hr_huntlng/UI/Login/LoginPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
@@ -39,6 +40,9 @@ class RegisterPage extends StatelessWidget {
                         builder: (context) => MainScreen(
                               user: state.user,
                             )));
+              } else if (state is AuthenticationNotAuthenticated) {
+                return Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginPage()));
               }
             },
             child: BlocBuilder<LoginBloc, LoginState>(
@@ -134,6 +138,8 @@ class RegisterPage extends StatelessWidget {
                         margin: EdgeInsets.only(
                             left: wp(10), right: wp(10), top: hp(1)),
                         child: BlocBuilder<LoginBloc, LoginState>(
+                          buildWhen: (previous, current) =>
+                              previous.displayName != current.displayName,
                           builder: (context, state) {
                             return TextField(
                               autofocus: false,
@@ -176,6 +182,9 @@ class RegisterPage extends StatelessWidget {
                             ),
                             BlocBuilder<LoginBloc, LoginState>(
                               builder: (context, state) {
+                                if (state is RegisterSuccess) {
+                                  return CircularProgressIndicator();
+                                }
                                 return ClipOval(
                                   child: Container(
                                     height: hp(8),

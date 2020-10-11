@@ -33,3 +33,16 @@ class RatingState extends Equatable {
 class RatingInitial extends RatingState {}
 
 class QuizSended extends RatingState {}
+
+
+class QuizLoading extends RatingState{
+   @override
+  List<Object> get props => [];
+}
+class QuizLoaded extends RatingState {
+  final List<RatingData> data;
+
+  QuizLoaded({this.data});
+  @override
+  List<Object> get props => [data];
+}

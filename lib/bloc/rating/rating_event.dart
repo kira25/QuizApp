@@ -53,5 +53,10 @@ class AttentionDetailsEvent extends RatingEvent {
 }
 
 class SendQuiz extends RatingEvent {
-  const SendQuiz();
+  final String displayName;
+  const SendQuiz(this.displayName);
+}
+
+class LoadQuizData extends RatingEvent {
+  const LoadQuizData();
 }

@@ -1,8 +1,10 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hr_huntlng/UI/Admin/AdminPage.dart';
 import 'package:hr_huntlng/UI/Home/HomePage.dart';
 import 'package:hr_huntlng/UI/Login/LoginPage.dart';
+import 'package:hr_huntlng/UI/Rating/RatingPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
@@ -12,11 +14,13 @@ void main() async {
 
   await Firebase.initializeApp(
       options: FirebaseOptions(
-          appId: '1:1048262391656:android:8ffbe948fb7a9f95f588dd',
-          messagingSenderId: '...',
-          projectId: '...',
-          apiKey: 'AIzaSyAPhM0lrpenTg0a9Jg0B6L1uhfAm-uqTz0',
-          databaseURL: 'https://huntlng.firebaseio.com'));
+    appId: '1:1048262391656:android:8ffbe948fb7a9f95f588dd',
+    messagingSenderId: '...',
+    projectId: '...',
+    apiKey: 'AIzaSyAPhM0lrpenTg0a9Jg0B6L1uhfAm-uqTz0',
+    databaseURL: 'https://huntlng.firebaseio.com',
+  ));
+
   runApp(MultiRepositoryProvider(
     providers: [
       RepositoryProvider(create: (context) => AuthService()),
@@ -25,7 +29,8 @@ void main() async {
     child: BlocProvider<AuthBloc>(
       create: (context) {
         final authService = RepositoryProvider.of<AuthService>(context);
-        return AuthBloc(authService)..add(AppLoaded());
+        final ratingService = RepositoryProvider.of<RatingService>(context);
+        return AuthBloc(authService, ratingService)..add(AppLoaded());
       },
       child: MyApp(),
     ),
@@ -44,8 +49,13 @@ class MyApp extends StatelessWidget {
       home: new BlocBuilder<AuthBloc, AuthState>(
         builder: (context, state) {
           if (state is AuthenticationAuthenticated) {
-            return MainScreen(
+            return RatingPage(
               user: state.user,
+            );
+          } else if (state is AuthenticationAdmin) {
+            return AdminPage(
+              user: state.user,
+              data: state.data,
             );
           } else {
             return LoginPage();

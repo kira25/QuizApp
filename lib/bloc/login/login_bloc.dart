@@ -43,12 +43,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   Stream<LoginState> _mapRegisterButtonPressed(
       RegisterButtonPressed event, LoginState state) async* {
-    await _authenticationService.createAccount(
-        state.username.value, state.password.value, state.displayName);
-    yield RegisterSuccess();
-    User user = await _authenticationService.signInWithEmailAndPassword(
+    User user = await _authenticationService.createAccount(
         state.username.value, state.password.value);
-    _authenticationBloc.add(UserLoggedIn(user: user));
+    User updateUser =
+        await _authenticationService.updateProfile(user, state.displayName);
+    yield RegisterSuccess();
+    await _authenticationService.signInWithEmailAndPassword(
+        state.username.value, state.password.value);
+
+    _authenticationBloc.add(UserLoggedIn(user: updateUser));
     yield LoginSuccess();
     yield LoginInitial();
   }
@@ -94,6 +97,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         yield LoginInitial();
       } else {
         yield LoginFailure(error: 'Incorrect password or email');
+        yield LoginInitial();
       }
     }
   }
