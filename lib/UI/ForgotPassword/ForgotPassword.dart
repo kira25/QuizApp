@@ -2,39 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
-import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
 class ForgotPassword extends StatelessWidget {
-  final AuthBloc authBloc;
   final TextEditingController emailController = TextEditingController();
-  ForgotPassword({this.authBloc});
 
   @override
   Widget build(BuildContext context) {
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
 
-    final authService = RepositoryProvider.of<AuthService>(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            color: kdarkprimarycolor,
-            iconSize: wp(8),
-            onPressed: () => Navigator.pop(context)),
-      ),
-      body: BlocProvider<LoginBloc>(
-        create: (context) => LoginBloc(authBloc, authService),
-        child: SendEmail(
-          wp: wp,
-          hp: hp,
-          emailController: emailController,
-          // function: _onForgotPassword,
+    return Hero(
+      tag: 'ForgotPassword',
+        transitionOnUserGestures: true,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
+          leading: IconButton(
+              icon: Icon(Icons.arrow_back_ios),
+              color: kaccentcolor,
+              iconSize: wp(8),
+              onPressed: () => Navigator.pop(context)),
+        ),
+        body: BlocProvider<LoginBloc>(
+          create: (context) => LoginBloc(context.bloc<AuthBloc>()),
+          child: SendEmail(
+            wp: wp,
+            hp: hp,
+            emailController: emailController,
+            // function: _onForgotPassword,
+          ),
         ),
       ),
     );
@@ -60,7 +59,6 @@ class SendEmail extends StatelessWidget {
     _onForgotPassword() {
       context.bloc<LoginBloc>().add(LoginForgotPassword(emailController.text));
       Navigator.pop(context);
-      print('forgot password');
     }
 
     return BlocBuilder<LoginBloc, LoginState>(builder: (context, state) {
@@ -96,7 +94,7 @@ class SendEmail extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Email',
+                      'Please enter your email',
                       style: TextStyle(
                         fontFamily: fontOswaldBold,
                         color: kdarkprimarycolor,
@@ -136,45 +134,28 @@ class SendEmail extends StatelessWidget {
               BlocBuilder<LoginBloc, LoginState>(
                 builder: (context, state) {
                   return Container(
-                    margin: const EdgeInsets.only(
-                        left: 30.0, right: 30.0, top: 20.0),
-                    alignment: Alignment.center,
-                    child: new Row(
-                      children: <Widget>[
-                        new Expanded(
-                          child: new RaisedButton(
-                            shape: new RoundedRectangleBorder(
-                              borderRadius: new BorderRadius.circular(30.0),
-                            ),
-                            color: kaccentcolor,
-                            onPressed: state.username.invalid == true ||
-                                    state.username.value.isEmpty == true
-                                ? null
-                                : _onForgotPassword,
-                            child: new Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 20.0,
-                                horizontal: 20.0,
-                              ),
-                              child: new Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  new Expanded(
-                                    child: Text(
-                                      "Confirmar",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontSize: wp(4),
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                    width: wp(80),
+                    height: hp(8),
+                    margin:
+                        EdgeInsets.only(left: wp(7), right: wp(7), top: hp(2)),
+                    child: RaisedButton(
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      color: kaccentcolor,
+                      onPressed: state.username.invalid == true ||
+                              state.username.value.isEmpty == true
+                          ? null
+                          : _onForgotPassword,
+                      child: Text(
+                        "Confirmar",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: wp(4),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
                   );
                 },

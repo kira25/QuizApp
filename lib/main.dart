@@ -2,9 +2,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/UI/Admin/AdminPage.dart';
-import 'package:hr_huntlng/UI/Home/HomePage.dart';
 import 'package:hr_huntlng/UI/Login/LoginPage.dart';
 import 'package:hr_huntlng/UI/Rating/RatingPage.dart';
+import 'package:hr_huntlng/UI/Splash/SplashPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
@@ -28,9 +28,7 @@ void main() async {
     ],
     child: BlocProvider<AuthBloc>(
       create: (context) {
-        final authService = RepositoryProvider.of<AuthService>(context);
-        final ratingService = RepositoryProvider.of<RatingService>(context);
-        return AuthBloc(authService, ratingService)..add(AppLoaded());
+        return AuthBloc()..add(AppLoaded());
       },
       child: MyApp(),
     ),
@@ -57,6 +55,8 @@ class MyApp extends StatelessWidget {
               user: state.user,
               data: state.data,
             );
+          } else if (state is AuthenticationLoading) {
+            return SplashPage();
           } else {
             return LoginPage();
           }

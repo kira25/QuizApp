@@ -23,7 +23,7 @@ class RatingService {
         .then((value) => data = value.value);
     var data2 = data.values.toList();
     List<RatingData> list = data2.map((e) => RatingData.fromJson(e)).toList();
-    print('readData:  $list');
+
     return list;
   }
 }

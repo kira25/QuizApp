@@ -7,8 +7,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/rating/rating_bloc.dart';
-import 'package:hr_huntlng/repository/auth/auth_service.dart';
-import 'package:hr_huntlng/repository/rating/rating_service.dart';
 import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
@@ -36,11 +34,9 @@ class RatingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('rating page user: ${user}');
+
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
-    final authService = RepositoryProvider.of<AuthService>(context);
-    final ratingService = RepositoryProvider.of<RatingService>(context);
 
     return WillPopScope(
       onWillPop: () async => false,

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../Rating/RatingPage.dart';
 
 class MainScreen extends StatefulWidget {
-  User user;
+ final User user;
   MainScreen({this.user});
   @override
   _MainScreenState createState() => new _MainScreenState();

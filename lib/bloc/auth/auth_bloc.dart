@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hr_huntlng/bloc/rating/rating_bloc.dart';
 import 'package:hr_huntlng/models/rating.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
@@ -12,13 +11,10 @@ part 'auth_event.dart';
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final AuthService _authenticationService;
-  final RatingService _ratingService;
+  AuthService _authenticationService = AuthService();
+  RatingService _ratingService = RatingService();
 
-  AuthBloc(AuthService authenticationService, this._ratingService)
-      : assert(authenticationService != null),
-        _authenticationService = authenticationService,
-        super(null);
+  AuthBloc() : super(const AuthState());
 
   AuthState get initialState => AuthenticationInitial();
 
@@ -39,6 +35,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Stream<AuthState> _mapAppLoadedToState(AppLoaded event) async* {
     yield AuthenticationLoading(); // to display splash screen
+    await Future.delayed(Duration(seconds: 1));
+    print('AuthenticationLoading');
     try {
       // a simulated delay
       User currentUser = await _authenticationService.getCurrentuser();
@@ -60,9 +58,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Stream<AuthState> _mapUserLoggedInToState(UserLoggedIn event) async* {
+    yield AuthenticationLoading();
     if (event.user.email == 'erick.gutierrez@pucp.pe') {
       List<RatingData> data = await _ratingService.readData();
-
       yield AuthenticationAdmin(user: event.user, data: data);
     } else {
       yield AuthenticationAuthenticated(user: event.user);

@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hr_huntlng/UI/Home/HomePage.dart';
 import 'package:hr_huntlng/UI/Login/LoginPage.dart';
+import 'package:hr_huntlng/UI/Rating/RatingPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
-import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
 
 class RegisterPage extends StatelessWidget {
-  AuthBloc authBloc;
-
-  RegisterPage({this.authBloc});
-
   @override
   Widget build(BuildContext context) {
-    final authService = RepositoryProvider.of<AuthService>(context);
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
 
@@ -30,14 +24,14 @@ class RegisterPage extends StatelessWidget {
             onPressed: () => Navigator.pop(context)),
       ),
       body: BlocProvider<LoginBloc>(
-          create: (context) => LoginBloc(authBloc, authService),
+          create: (context) => LoginBloc(context.bloc<AuthBloc>()),
           child: BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthenticationAuthenticated) {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => MainScreen(
+                        builder: (context) => RatingPage(
                               user: state.user,
                             )));
               } else if (state is AuthenticationNotAuthenticated) {
@@ -195,14 +189,7 @@ class RegisterPage extends StatelessWidget {
                                         return RaisedButton(
                                           onPressed: state.username.invalid ==
                                                       true ||
-                                                  state.password.invalid ==
-                                                      true ||
-                                                  state.username.value
-                                                          .isEmpty ==
-                                                      true ||
-                                                  state.password.value
-                                                          .isEmpty ==
-                                                      true
+                                                  state.password.invalid == true
                                               ? null
                                               : () => context
                                                   .bloc<LoginBloc>()

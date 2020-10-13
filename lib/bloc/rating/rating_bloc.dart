@@ -2,9 +2,7 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_huntlng/models/rating.dart';
-import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
 
 part 'rating_event.dart';
@@ -16,7 +14,6 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
   ) : super(initialState);
 
   RatingService _ratingService = RatingService();
-  AuthService _authService;
 
   @override
   Stream<RatingState> mapEventToState(

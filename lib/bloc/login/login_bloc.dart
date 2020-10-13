@@ -13,13 +13,11 @@ part 'login_state.dart';
 
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthBloc _authenticationBloc;
-  final AuthService _authenticationService;
+  AuthService _authenticationService = AuthService();
 
-  LoginBloc(AuthBloc authenticationBloc, AuthService authenticationService)
+  LoginBloc(AuthBloc authenticationBloc)
       : assert(authenticationBloc != null),
-        assert(authenticationService != null),
         _authenticationBloc = authenticationBloc,
-        _authenticationService = authenticationService,
         super(const LoginState());
 
   LoginState get initialState => LoginInitial();
@@ -90,10 +88,11 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
       User user = await _authenticationService.signInWithEmailAndPassword(
           event.username, event.password);
+      yield LoginSuccess();
       if (user != null) {
         // push new authentication event
         _authenticationBloc.add(UserLoggedIn(user: user));
-        yield LoginSuccess();
+
         yield LoginInitial();
       } else {
         yield LoginFailure(error: 'Incorrect password or email');
