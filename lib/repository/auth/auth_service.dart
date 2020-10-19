@@ -45,35 +45,26 @@ class AuthService {
     await _auth.sendPasswordResetEmail(email: email);
   }
 
-  Future<String> signInWithGoogle() async {
-    await Firebase.initializeApp();
+  Future<User> signInWithGoogle() async {
+   try {
+      GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+      GoogleSignInAuthentication googleAuth =
+          await googleSignInAccount.authentication;
 
-    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
+      UserCredential result = await _auth.signInWithCredential(credential);
+      User user = result.user;
 
-    final UserCredential authResult =
-        await _auth.signInWithCredential(credential);
-    final User user = authResult.user;
-
-    if (user != null) {
-      assert(!user.isAnonymous);
-      assert(await user.getIdToken() != null);
-
-      final User currentUser = _auth.currentUser;
-      assert(user.uid == currentUser.uid);
-
-      print('signInWithGoogle succeeded: $user');
-
-      return '$user';
+     
+      return user;
+    } catch (error) {
+      print(error);
+      return null;
     }
-
-    return null;
   }
 
   Future<void> signOutGoogle() async {

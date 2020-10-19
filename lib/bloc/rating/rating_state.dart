@@ -3,6 +3,7 @@ part of 'rating_bloc.dart';
 class RatingState extends Equatable {
   const RatingState(
       {this.attentionDetails,
+      this.feelings,
       this.innovation,
       this.confidence,
       this.teamWork,
@@ -13,10 +14,17 @@ class RatingState extends Equatable {
   final double confidence;
   final double teamWork;
   final double clientService;
+  final String feelings;
 
   RatingState copyWith(
-      {attentionDetails, innovation, confidence, teamWork, clientService}) {
+      {attentionDetails,
+      innovation,
+      confidence,
+      teamWork,
+      clientService,
+      feelings}) {
     return RatingState(
+      feelings: feelings ?? this.feelings,
       attentionDetails: attentionDetails ?? this.attentionDetails,
       innovation: innovation ?? this.innovation,
       confidence: confidence ?? this.confidence,
@@ -34,11 +42,11 @@ class RatingInitial extends RatingState {}
 
 class QuizSended extends RatingState {}
 
-
-class QuizLoading extends RatingState{
-   @override
+class QuizLoading extends RatingState {
+  @override
   List<Object> get props => [];
 }
+
 class QuizLoaded extends RatingState {
   final List<RatingData> data;
 

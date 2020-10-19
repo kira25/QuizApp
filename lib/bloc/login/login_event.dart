@@ -52,7 +52,21 @@ class RegisterDisplayNameChanged extends LoginEvent {
   List<Object> get props => [displayName];
 }
 
-
 class RegisterButtonPressed extends LoginEvent {
   const RegisterButtonPressed();
+}
+
+class LoginWithGoogle extends LoginEvent {}
+
+class SaveQuizname extends LoginEvent {
+  final String quizname;
+
+  SaveQuizname({this.quizname});
+
+  @override
+  List<Object> get props => [quizname];
+}
+
+class LoadQuizNameEvent extends LoginEvent{
+  
 }

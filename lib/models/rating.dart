@@ -4,38 +4,42 @@
 
 import 'dart:convert';
 
-RatingData ratingDataFromJson(String str) => RatingData.fromJson(json.decode(str));
+RatingData ratingDataFromJson(String str) =>
+    RatingData.fromJson(json.decode(str));
 
 String ratingDataToJson(RatingData data) => json.encode(data.toJson());
 
 class RatingData {
-    RatingData({
-        this.innovation,
-        this.attentionDetails,
-        this.teamWork,
-        this.confidence,
-        this.clienteService,
-    });
+  RatingData({
+    this.feelings,
+    this.innovation,
+    this.attentionDetails,
+    this.teamWork,
+    this.confidence,
+    this.clienteService,
+  });
+  String feelings;
+  int innovation;
+  int attentionDetails;
+  int teamWork;
+  int confidence;
+  int clienteService;
 
-    int innovation;
-    int attentionDetails;
-    int teamWork;
-    int confidence;
-    int clienteService;
-
-    factory RatingData.fromJson(dynamic json) => RatingData(
+  factory RatingData.fromJson(dynamic json) => RatingData(
         innovation: json["innovation"],
         attentionDetails: json["attentionDetails"],
         teamWork: json["teamWork"],
         confidence: json["confidence"],
         clienteService: json["clienteService"],
-    );
+        feelings: json["feelings"],
+      );
 
-    Map<String, dynamic> toJson() => {
+  Map<String, dynamic> toJson() => {
         "innovation": innovation,
         "attentionDetails": attentionDetails,
         "teamWork": teamWork,
         "confidence": confidence,
         "clienteService": clienteService,
-    };
+        "feelings": feelings,
+      };
 }

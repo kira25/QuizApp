@@ -12,7 +12,7 @@ import 'package:charts_flutter/flutter.dart' as charts;
 
 class AdminPage extends StatefulWidget {
   final User user;
-  List<RatingData> data;
+  final List<RatingData> data;
 
   AdminPage({this.user, this.data});
 
@@ -22,21 +22,34 @@ class AdminPage extends StatefulWidget {
 
 class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
   List<charts.Series<QuizTest, String>> seriesList = [];
+  List<charts.Series<QuizTest, String>> seriesListFeeling = [];
   int sumAttentionDetails = 0;
   int sumInnovation = 0;
   int sumConfidence = 0;
   int sumClientService = 0;
   int sumTeamWork = 0;
-  bool animate;
+  int sumFeelingsBad = 0;
+  int sumFeelingsOk = 0;
+  int sumFeelingsGood = 0;
 
   void loadData() {
-    widget.data
-        .forEach((element) => sumAttentionDetails += element.attentionDetails);
-    widget.data.forEach((element) => sumInnovation += element.innovation);
-    widget.data.forEach((element) => sumConfidence += element.confidence);
-    widget.data
-        .forEach((element) => sumClientService += element.clienteService);
-    widget.data.forEach((element) => sumTeamWork += element.teamWork);
+    widget.data.forEach((element) {
+      sumAttentionDetails += element.attentionDetails.toInt();
+      sumInnovation += element.innovation.toInt();
+      sumConfidence += element.confidence.toInt();
+      sumClientService += element.clienteService.toInt();
+      sumTeamWork += element.teamWork.toInt();
+      if (element.feelings == "Ok") {
+        sumFeelingsOk++;
+      } else if (element.feelings == "Bad") {
+        sumFeelingsBad++;
+      } else if (element.feelings == "Good") {
+        sumFeelingsGood++;
+      } else {
+        return null;
+      }
+    });
+
     List<QuizTest> list = [
       QuizTest(
           color: charts.ColorUtil.fromDartColor(Colors.green),
@@ -60,9 +73,34 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
           values: sumClientService),
     ];
 
+    List<QuizTest> listfeeling = [
+      QuizTest(
+          color: charts.ColorUtil.fromDartColor(Colors.green),
+          legend: 'FeelingOk',
+          values: sumFeelingsOk),
+      QuizTest(
+          color: charts.ColorUtil.fromDartColor(Colors.orange),
+          legend: 'FeelingBad',
+          values: sumFeelingsBad),
+      QuizTest(
+          color: charts.ColorUtil.fromDartColor(Colors.redAccent),
+          legend: 'FeelingGood',
+          values: sumFeelingsGood),
+    ];
+
     seriesList = [
       charts.Series(
         data: list,
+        id: 'Quiz of Feeling',
+        measureFn: (QuizTest data, index) => data.values,
+        domainFn: (QuizTest data, index) => data.legend,
+        colorFn: (datum, index) => datum.color,
+      ),
+    ];
+
+    seriesListFeeling = [
+      charts.Series(
+        data: listfeeling,
         id: 'Quiz of Feeling',
         measureFn: (QuizTest data, index) => data.values,
         domainFn: (QuizTest data, index) => data.legend,
@@ -76,6 +114,7 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
     // TODO: implement initState
     super.initState();
     loadData();
+    print('Admin Page');
   }
 
   @override
@@ -83,6 +122,10 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
     print('DATA admin: ${widget.data}');
+    print('DATA admin: ${widget.data[0].feelings}');
+    print('$sumFeelingsGood');
+    print('$sumFeelingsBad');
+    print('$sumFeelingsOk');
 
     TabController _tabController = TabController(length: 2, vsync: this);
     return Scaffold(
@@ -92,8 +135,8 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
           elevation: 0,
           leading: IconButton(
               iconSize: wp(8),
-              color: kaccentcolor,
-              icon: Icon(Icons.arrow_back),
+              color: kdarklogincolor,
+              icon: Icon(Icons.close),
               onPressed: () {
                 context.bloc<AuthBloc>().add(UserLoggedOut());
               }),
@@ -126,48 +169,36 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
             controller: _tabController,
             children: [
               Container(
-                child: BlocBuilder<RatingBloc, RatingState>(
-                    builder: (context, state) {
-                  if (state is QuizLoading) {
-                    return Container(
-                      child: Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  } else if (state is QuizLoaded) {
-                    return Container(
-                      height: hp(30),
-                      child: Card(
-                        color: Colors.white,
-                        shadowColor: Colors.white,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: charts.BarChart(
-                                seriesList,
-                                animate: true,
-                                behaviors: [
-                                  charts.DatumLegend(
-                                    position: charts.BehaviorPosition.bottom,
-                                    horizontalFirst: false,
-                                    showMeasures: true,
-                                    legendDefaultMeasure:
-                                        charts.LegendDefaultMeasure.firstValue,
-                                    measureFormatter: (measure) {
-                                      return measure == null ? '-' : '$measure';
-                                    },
-                                  )
-                                ],
-                              ),
-                            ),
-                          ],
+                child: Container(
+                  height: hp(30),
+                  child: Card(
+                    color: Colors.white,
+                    shadowColor: Colors.white,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: charts.BarChart(
+                            seriesList,
+                            animate: true,
+                            behaviors: [
+                              charts.DatumLegend(
+                                position: charts.BehaviorPosition.bottom,
+                                horizontalFirst: false,
+                                showMeasures: true,
+                                legendDefaultMeasure:
+                                    charts.LegendDefaultMeasure.firstValue,
+                                measureFormatter: (measure) {
+                                  return measure == null ? '-' : '$measure';
+                                },
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  }
-                  return Container();
-                }),
+                      ],
+                    ),
+                  ),
+                ),
               ),
               Container(
                 child: BlocBuilder<RatingBloc, RatingState>(
@@ -188,7 +219,7 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
                           children: [
                             Expanded(
                               child: charts.PieChart(
-                                seriesList,
+                                seriesListFeeling,
                                 animate: true,
                                 behaviors: [
                                   charts.DatumLegend(

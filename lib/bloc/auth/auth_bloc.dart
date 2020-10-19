@@ -13,7 +13,6 @@ part 'auth_state.dart';
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthService _authenticationService = AuthService();
   RatingService _ratingService = RatingService();
-
   AuthBloc() : super(const AuthState());
 
   AuthState get initialState => AuthenticationInitial();
@@ -31,35 +30,55 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (event is UserLoggedOut) {
       yield* _mapUserLoggedOutToState(event);
     }
+
+    if (event is IntroToLogin) {
+      yield* _mapIntroToLogin();
+    }
+
+    if (event is LoginToIntro) {
+      yield* _mapLoginToIntro();
+    }
+  }
+
+  Stream<AuthState> _mapLoginToIntro() async* {
+    yield AuthenticationIntroSlider();
+  }
+
+  Stream<AuthState> _mapIntroToLogin() async* {
+    yield AuthenticationNotAuthenticated();
   }
 
   Stream<AuthState> _mapAppLoadedToState(AppLoaded event) async* {
+    // String quizname = await _preferenceRepository.getData('data');
     yield AuthenticationLoading(); // to display splash screen
-    await Future.delayed(Duration(seconds: 1));
+    await Future.delayed(Duration(seconds: 2));
     print('AuthenticationLoading');
+
     try {
       // a simulated delay
       User currentUser = await _authenticationService.getCurrentuser();
 
       if (currentUser != null) {
-        if (currentUser.email == 'erick.gutierrez@pucp.pe') {
+        if (currentUser.email.contains('@admin.com')) {
           List<RatingData> data = await _ratingService.readData();
           yield AuthenticationAdmin(user: currentUser, data: data);
         } else {
           yield AuthenticationAuthenticated(user: currentUser);
         }
       } else {
-        yield AuthenticationNotAuthenticated();
+        yield AuthenticationIntroSlider();
+        // yield AuthenticationNotAuthenticated();
       }
     } catch (e) {
       yield AuthenticationFailure(
           message: e.message ?? 'An unknown error occurred');
+      print('An unknown error occurred');
     }
   }
 
   Stream<AuthState> _mapUserLoggedInToState(UserLoggedIn event) async* {
-    yield AuthenticationLoading();
-    if (event.user.email == 'erick.gutierrez@pucp.pe') {
+    // yield AuthenticationLoading();
+    if (event.user.email.contains('@admin.com')) {
       List<RatingData> data = await _ratingService.readData();
       yield AuthenticationAdmin(user: event.user, data: data);
     } else {

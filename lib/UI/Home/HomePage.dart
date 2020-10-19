@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     _controller.animateToPage(
       2,
       duration: Duration(milliseconds: 800),
-      curve: Curves.bounceOut,
+      curve: Curves.bounceIn,
     );
   }
 

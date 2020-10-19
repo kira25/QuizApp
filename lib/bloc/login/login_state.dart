@@ -39,4 +39,16 @@ class LoginFailure extends LoginState {
 
 class LoginSendPassword extends LoginState {}
 
+class RegisterLoading extends LoginState {}
+
 class RegisterSuccess extends LoginState {}
+
+class LoginWithGoogleLoading extends LoginState {}
+
+class SaveQuiznameSuccess extends LoginState {
+  final String savedQuizname;
+
+  SaveQuiznameSuccess({this.savedQuizname});
+  @override
+  List<Object> get props => [savedQuizname];
+}

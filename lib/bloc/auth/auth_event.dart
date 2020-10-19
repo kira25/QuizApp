@@ -23,3 +23,9 @@ class UserLoggedIn extends AuthEvent {
 
 // Fired when the user has logged out
 class UserLoggedOut extends AuthEvent {}
+
+class IntroToLogin extends AuthEvent{}
+
+class LoginToIntro extends AuthEvent{
+  
+}

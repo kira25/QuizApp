@@ -39,3 +39,6 @@ class AuthenticationAdmin extends AuthState {
   @override
   List<Object> get props => [user, data];
 }
+
+class AuthenticationIntroSlider extends AuthState {}
+

@@ -7,6 +7,7 @@ import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/models/password.dart';
 import 'package:hr_huntlng/models/username.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
+import 'package:hr_huntlng/repository/preferences/preferences_repository.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
@@ -14,7 +15,8 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthBloc _authenticationBloc;
   AuthService _authenticationService = AuthService();
-
+  PreferenceRepository _preferenceRepository = PreferenceRepository();
+  String quizname;
   LoginBloc(AuthBloc authenticationBloc)
       : assert(authenticationBloc != null),
         _authenticationBloc = authenticationBloc,
@@ -36,16 +38,48 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield _mapRegisterDisplayNameChanged(event, state);
     } else if (event is RegisterButtonPressed) {
       yield* _mapRegisterButtonPressed(event, state);
+    } else if (event is LoginWithGoogle) {
+      yield* _mapLoginWithGoogle();
+    } else if (event is SaveQuizname) {
+      yield* _mapSaveQuizname(event);
+    } else if (event is LoadQuizNameEvent) {
+      yield* _mapLoadQuizNameEvent();
+    }
+  }
+
+  Stream<LoginState> _mapLoadQuizNameEvent() async* {
+    quizname = await _preferenceRepository.getQuizname();
+    print('LoadQuizNameEvent : $quizname');
+    yield SaveQuiznameSuccess(savedQuizname: quizname);
+  }
+
+  Stream<LoginState> _mapSaveQuizname(
+    SaveQuizname event,
+  ) async* {
+    await _preferenceRepository.setData('data', event.quizname);
+    quizname = await _preferenceRepository.getQuizname();
+    print('SaveQuizname: $quizname');
+    yield SaveQuiznameSuccess(savedQuizname: quizname);
+    // yield SaveQuiznameSuccess(await _preferenceRepository.getData('data'));
+  }
+
+  Stream<LoginState> _mapLoginWithGoogle() async* {
+    yield LoginWithGoogleLoading();
+    User user = await _authenticationService.signInWithGoogle();
+    yield LoginLoading();
+    if (user != null) {
+      _authenticationBloc.add(UserLoggedIn(user: user));
     }
   }
 
   Stream<LoginState> _mapRegisterButtonPressed(
       RegisterButtonPressed event, LoginState state) async* {
+    yield RegisterLoading();
     User user = await _authenticationService.createAccount(
         state.username.value, state.password.value);
     User updateUser =
         await _authenticationService.updateProfile(user, state.displayName);
-    yield RegisterSuccess();
+    // yield RegisterSuccess();
     await _authenticationService.signInWithEmailAndPassword(
         state.username.value, state.password.value);
 
@@ -64,6 +98,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     LoginState state,
   ) {
     final username = Username.dirty(event.username);
+
     return state.copyWith(
       username: username,
     );
@@ -84,19 +119,21 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event.username.isEmpty && event.password.isEmpty) {
       yield LoginFailure(error: 'Please fill the gaps');
     } else {
-      yield LoginLoading();
+      try {
+        yield LoginLoading();
 
-      User user = await _authenticationService.signInWithEmailAndPassword(
-          event.username, event.password);
-      yield LoginSuccess();
-      if (user != null) {
-        // push new authentication event
-        _authenticationBloc.add(UserLoggedIn(user: user));
-
-        yield LoginInitial();
-      } else {
-        yield LoginFailure(error: 'Incorrect password or email');
-        yield LoginInitial();
+        User user = await _authenticationService.signInWithEmailAndPassword(
+            event.username, event.password);
+        yield LoginSuccess();
+        if (user != null) {
+          // push new authentication event
+          _authenticationBloc.add(UserLoggedIn(user: user));
+        } else {
+          yield LoginFailure(error: 'Incorrect password or email');
+        }
+      } catch (e) {
+        print('failed to connect');
+        yield LoginFailure(error: 'Failed to connect');
       }
     }
   }

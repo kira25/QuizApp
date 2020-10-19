@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr_huntlng/UI/ForgotPassword/ForgotPassword.dart';
 import 'package:hr_huntlng/UI/Register/RegisterPage.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/bloc/login/login_bloc.dart';
+import 'package:hr_huntlng/commons/customClipthPath.dart';
 import 'package:hr_huntlng/utils/colors_fonts.dart';
 import 'package:responsive_screen/responsive_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 
 class LoginPage extends StatelessWidget {
@@ -13,31 +17,52 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(body: BlocBuilder<AuthBloc, AuthState>(
       builder: (context, state) {
+        if (state is AuthenticationFailure) {
+          return Container(
+            child: Center(
+              child: Text('${state.message}'),
+            ),
+          );
+        }
         return Container(
           child: BlocProvider<LoginBloc>(
-            create: (context) => LoginBloc(context.bloc<AuthBloc>()),
-            child: SignInForm(),
-          ),
+              create: (context) =>
+                  LoginBloc(context.bloc<AuthBloc>())..add(LoadQuizNameEvent()),
+              child: KeyboardVisibilityProvider(child: SignInForm())),
         );
       },
     ));
   }
 }
 
-class SignInForm extends StatelessWidget {
+class SignInForm extends StatefulWidget {
   SignInForm({
     Key key,
   }) : super(key: key);
 
-  final _passwordController = TextEditingController();
-  final _emailController = TextEditingController();
+  @override
+  _SignInFormState createState() => _SignInFormState();
+}
+
+class _SignInFormState extends State<SignInForm> {
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _quiznameController = TextEditingController();
+
+  String quizname;
+  SharedPreferences sharedPreferences;
+  // AnimationController _animationController;
+  // Animation<double> _animationLogin;
 
   @override
   Widget build(BuildContext context) {
+    // QuizNameNotifier _quizNameNotifier = Provider.of<QuizNameNotifier>(context);
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
     print(wp(100));
     print(hp(100));
+    final bool isKeyboardVisible =
+        KeyboardVisibilityProvider.isKeyboardVisible(context);
 
     _onLoginButtonPressed() {
       context.bloc<LoginBloc>().add(LoginInWithEmailButtonPressed(
@@ -59,19 +84,22 @@ class SignInForm extends StatelessWidget {
       child: BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
           if (state is LoginLoading) {
-            return Center(
-              child: SizedBox(
-                width: 200.0,
-                height: 100.0,
-                child: Shimmer.fromColors(
-                  baseColor: Colors.red,
-                  highlightColor: Colors.yellow,
-                  child: Text(
-                    'Loading',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 40.0,
-                      fontWeight: FontWeight.bold,
+            return Container(
+              width: wp(100),
+              height: hp(100),
+              color: Colors.black,
+              child: Center(
+                child: SizedBox(
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.red,
+                    highlightColor: Colors.yellow,
+                    child: Text(
+                      'Loading',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: wp(8),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -80,82 +108,141 @@ class SignInForm extends StatelessWidget {
           } else {
             //LOGIN
             return SafeArea(
-              child: new Container(
+              child: Container(
                 height: hp(100),
                 width: wp(100),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                ),
-                child: new Stack(
-                  fit: StackFit.loose,
+                color: kwhitecolor,
+                child: Stack(
                   children: <Widget>[
-                    ClipPath(
-                      child: Container(
-                        height: hp(75),
-                        width: wp(100),
-                        color: kbluelogincolor,
-                      ),
-                      clipper: CustomClipPathBlue(),
-                    ),
-                    ClipPath(
-                      child: Container(
-                        height: hp(60),
-                        width: wp(100),
-                        color: kdarklogincolor,
-                      ),
-                      clipper: CustomClipPathDark(),
-                    ),
-                    ClipPath(
-                      child: Container(
-                        height: hp(20),
-                        width: wp(80),
-                        color: klightlogincolor,
-                      ),
-                      clipper: CustomClipPathOrange(),
-                    ),
-
-                    // Positioned(
-                    //   top: hp(2),
-                    //   left: wp(10),
-                    //   child: Container(
-                    //     padding: EdgeInsets.only(
-                    //         left: wp(2),
-                    //         right: wp(2),
-                    //         top: hp(10),
-                    //         bottom: hp(3)),
-                    //     child: Center(
-                    //         child: Image.asset(
-                    //       './assets/examen.png',
-                    //       height: hp(15),
-                    //       width: wp(25),
-                    //     )),
-                    //   ),
-                    // ),
                     Positioned(
-                      top: hp(20),
-                      left: wp(14),
-                      child: Text(
-                        'Welcome to \nthe Quiz',
-                        style: TextStyle(
-                            fontFamily: fontSintonyBold,
-                            color: Colors.white,
-                            fontSize: wp(8)),
+                      top: isKeyboardVisible == true ? -hp(22) : 0,
+                      right: isKeyboardVisible == true ? -wp(10) : 0,
+                      child: ClipPath(
+                        child: Container(
+                          height: hp(60),
+                          width: wp(100),
+                          color: kbluelogincolor,
+                        ),
+                        clipper: CustomClipPathBlue(),
                       ),
                     ),
-
                     Positioned(
-                      bottom: hp(28),
+                      top: isKeyboardVisible == true ? -hp(24) : 0,
+                      child: ClipPath(
+                        child: Container(
+                          height: hp(50),
+                          width: wp(100),
+                          color: kdarklogincolor,
+                        ),
+                        clipper: CustomClipPathDark(),
+                      ),
+                    ),
+                    Positioned(
+                      right: isKeyboardVisible == true ? wp(30) : wp(20),
+                      child: ClipPath(
+                        child: Container(
+                          height: hp(20),
+                          width: wp(80),
+                          color: klightlogincolor,
+                        ),
+                        clipper: CustomClipPathOrange(),
+                      ),
+                    ),
+                    Positioned(
+                      top: hp(10),
+                      left: wp(4),
+                      child: CircleAvatar(
+                        backgroundColor: kdarklogincolor,
+                        child: IconButton(
+                            iconSize: wp(4),
+                            icon: Icon(
+                              FontAwesomeIcons.info,
+                              color: kwhitecolor,
+                            ),
+                            onPressed: () =>
+                                context.bloc<AuthBloc>().add(LoginToIntro())),
+                      ),
+                    ),
+                    Positioned(
+                      top: hp(3),
+                      left: wp(4),
+                      child: CircleAvatar(
+                        backgroundColor: kdarklogincolor,
+                        child: IconButton(
+                            color: kwhitecolor,
+                            icon: Icon(
+                              Icons.menu,
+                              color: kwhitecolor,
+                            ),
+                            onPressed: () {
+                              showDialog(
+                                context: context,
+                                builder: (_) {
+                                  return AlertDialog(
+                                    title: Text('Please insert your Quiz name'),
+                                    content: TextField(
+                                        controller: _quiznameController,
+                                        onEditingComplete: () {
+                                          print('${_quiznameController.text}');
+                                          context.bloc<LoginBloc>().add(
+                                              SaveQuizname(
+                                                  quizname: _quiznameController
+                                                      .text));
+                                          Navigator.pop(context);
+                                        }),
+                                  );
+                                },
+                              );
+                            }),
+                      ),
+                    ),
+                    isKeyboardVisible == true
+                        ? Container()
+                        : Positioned(
+                            top: hp(20),
+                            left: wp(14),
+                            child: Text(
+                              'Quiz of\nfeelings',
+                              style: TextStyle(
+                                  fontFamily: fontSintonyBold,
+                                  color: Colors.white,
+                                  fontSize: wp(8)),
+                            ),
+                          ),
+                    state is SaveQuiznameSuccess
+                        ? isKeyboardVisible == false
+                            ? Positioned(
+                                top: hp(5),
+                                right: wp(8),
+                                child: Text(
+                                  state.savedQuizname != null
+                                      ? 'Quiz Name: ${state.savedQuizname}'
+                                      : 'Quiz Name: ',
+                                  style: TextStyle(
+                                      fontFamily: fontSintonyBold,
+                                      fontSize: wp(4),
+                                      color: kwhitecolor),
+                                ))
+                            : Container()
+                        : Container(),
+                    Positioned(
+                      bottom: isKeyboardVisible == true ? hp(10) : hp(35),
                       left: wp(10),
                       right: wp(10),
                       child: Column(
                         children: [
                           TextField(
-                            autofocus: false,
+                            autocorrect: false,
                             keyboardType: TextInputType.emailAddress,
                             controller: _emailController,
-                            onChanged: (username) => context
-                                .bloc<LoginBloc>()
-                                .add(LoginUsernameChanged(username)),
+                            onChanged: (username) {
+                              context
+                                  .bloc<LoginBloc>()
+                                  .add(LoginUsernameChanged(username));
+                              context
+                                  .bloc<LoginBloc>()
+                                  .add(LoadQuizNameEvent());
+                            },
                             textAlign: TextAlign.left,
                             decoration: InputDecoration(
                               focusedBorder: UnderlineInputBorder(
@@ -181,10 +268,16 @@ class SignInForm extends StatelessWidget {
                             height: hp(3),
                           ),
                           TextField(
-                            onChanged: (value) => context
-                                .bloc<LoginBloc>()
-                                .add(LoginPasswordChanged(value)),
+                            onChanged: (value) {
+                              context
+                                  .bloc<LoginBloc>()
+                                  .add(LoginPasswordChanged(value));
+                              context
+                                  .bloc<LoginBloc>()
+                                  .add(LoadQuizNameEvent());
+                            },
                             controller: _passwordController,
+                            keyboardType: TextInputType.visiblePassword,
                             obscureText: true,
                             textAlign: TextAlign.left,
                             decoration: InputDecoration(
@@ -210,89 +303,122 @@ class SignInForm extends StatelessWidget {
                         ],
                       ),
                     ),
-
-                    Positioned(
-                      bottom: hp(13),
-                      left: wp(10),
-                      child: Row(children: [
-                        Text(
-                          'Sign in',
-                          style: TextStyle(
-                              fontFamily: fontOswaldBold,
-                              fontSize: wp(6),
-                              color: kdarkprimarycolor),
-                        ),
-                        SizedBox(
-                          width: wp(45),
-                        ),
-                        GestureDetector(
-                          onTap: state.username.invalid == true ||
-                                  state.password.invalid == true
-                              ? null
-                              : _onLoginButtonPressed,
-                          child: ClipOval(
-                            child: Container(
-                              height: hp(10),
-                              width: wp(18),
-                              color: state.username.invalid == true ||
-                                      state.password.invalid == true
-                                  ? Colors.grey
-                                  : kdarklogincolor,
-                              child: Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        )
-                      ]),
-                    ),
-
-                    Positioned(
-                      bottom: hp(6),
-                      left: wp(10),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: <Widget>[
-                          GestureDetector(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RegisterPage())),
-                            child: Text(
-                              'Sign up',
-                              style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontFamily: fontOswaldBold,
-                                  fontSize: wp(4.5),
-                                  color: kdarkprimarycolor),
-                            ),
+                    Visibility(
+                      visible: !isKeyboardVisible,
+                      child: Positioned(
+                        bottom: isKeyboardVisible == true ? hp(2) : hp(22),
+                        left: wp(10),
+                        child: Row(children: [
+                          Text(
+                            'Sign in',
+                            style: TextStyle(
+                                fontFamily: fontSintonyBold,
+                                fontSize: wp(6),
+                                color: kdarkprimarycolor),
                           ),
                           SizedBox(
-                            width: wp(32),
+                            width: wp(42),
                           ),
                           GestureDetector(
-                            onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => ForgotPassword())),
-                            child: Hero(
-                              tag: 'ForgotPassword',
-                              transitionOnUserGestures: true,
-                              child: Text(
-                                "Forgot Password?",
-                                style: TextStyle(
-                                  decoration: TextDecoration.underline,
-                                  fontFamily: fontOswaldBold,
-                                  color: kdarkprimarycolor,
-                                  fontSize: wp(4.5),
+                            onTap: state.username.invalid == true ||
+                                    state.password.invalid == true
+                                ? null
+                                : _onLoginButtonPressed,
+                            child: ClipOval(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: state.username.invalid == true ||
+                                          state.password.invalid == true
+                                      ? Colors.grey
+                                      : kdarklogincolor,
+                                ),
+                                height: hp(8),
+                                width: wp(16),
+                                child: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: Colors.white,
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          )
+                        ]),
                       ),
                     ),
+                    Visibility(
+                      visible: !isKeyboardVisible,
+                      child: Positioned(
+                        bottom: hp(6),
+                        left: wp(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: <Widget>[
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => RegisterPage())),
+                              child: Text(
+                                'Sign up',
+                                style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    fontSize: wp(4.5),
+                                    color: kdarkprimarycolor),
+                              ),
+                            ),
+                            SizedBox(
+                              width: wp(26),
+                            ),
+                            GestureDetector(
+                              onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => ForgotPassword())),
+                              child: Hero(
+                                tag: 'ForgotPassword',
+                                transitionOnUserGestures: true,
+                                child: Text(
+                                  "Forgot Password?",
+                                  style: TextStyle(
+                                    decoration: TextDecoration.underline,
+                                    color: kdarkprimarycolor,
+                                    fontSize: wp(4.5),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Visibility(
+                      visible: !isKeyboardVisible,
+                      child: Positioned(
+                        bottom: hp(12),
+                        left: wp(24),
+                        right: wp(24),
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all(kdarklogincolor)),
+                            onPressed: () => context
+                                .bloc<LoginBloc>()
+                                .add(LoginWithGoogle()),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                  'Sign in with Google',
+                                  style: TextStyle(fontFamily: fontSintonyBold),
+                                ),
+                                Icon(
+                                  FontAwesomeIcons.google,
+                                  color: kwhitecolor,
+                                  size: wp(4),
+                                ),
+                              ],
+                            )),
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -302,68 +428,4 @@ class SignInForm extends StatelessWidget {
       ),
     );
   }
-}
-
-class CustomClipPathOrange extends CustomClipper<Path> {
-  var radius = 15.0;
-  @override
-  getClip(Size size) {
-    var path = Path();
-    path.lineTo(0.0, size.height);
-    path.quadraticBezierTo(size.width * 0.25, size.height * 0.9,
-        size.width * 0.35, size.height * 0.42);
-
-    path.quadraticBezierTo(
-        size.width * 0.45, size.height * 0.15, size.width, 0);
-
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class CustomClipPathDark extends CustomClipper<Path> {
-  var radius = 15.0;
-  @override
-  getClip(Size size) {
-    var path = Path();
-
-    path.lineTo(0.0, size.height * 0.70);
-    path.quadraticBezierTo(size.width * 0.35, size.height * 0.9,
-        size.width * 0.50, size.height * 0.70);
-    path.quadraticBezierTo(size.width * 0.60, size.height * 0.50,
-        size.width * 0.85, size.height * 0.35);
-    path.quadraticBezierTo(
-        size.width * 0.95, size.height * 0.28, size.width, size.height * 0.20);
-    path.lineTo(size.width, 0);
-
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
-
-class CustomClipPathBlue extends CustomClipper<Path> {
-  var radius = 15.0;
-  @override
-  getClip(Size size) {
-    var path = Path();
-
-    path.lineTo(size.width, 0);
-    path.lineTo(size.width, size.height * 0.70);
-
-    path.quadraticBezierTo(size.width * 0.4, size.height * 0.7, 0, 0);
-
-    path.close();
-
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

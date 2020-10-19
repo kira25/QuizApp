@@ -52,6 +52,15 @@ class AttentionDetailsEvent extends RatingEvent {
   List<Object> get props => [attentionDetails];
 }
 
+class FeelingsEvent extends RatingEvent {
+  final String feelings;
+
+  FeelingsEvent({this.feelings});
+
+  @override
+  List<Object> get props => [feelings];
+}
+
 class SendQuiz extends RatingEvent {
   final String displayName;
   const SendQuiz(this.displayName);

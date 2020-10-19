@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:hr_huntlng/models/rating.dart';
+import 'package:hr_huntlng/repository/preferences/preferences_repository.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
 
 part 'rating_event.dart';
@@ -13,6 +14,7 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
     RatingState initialState,
   ) : super(initialState);
 
+  PreferenceRepository _preferenceRepository = PreferenceRepository();
   RatingService _ratingService = RatingService();
 
   @override
@@ -31,12 +33,15 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
       yield _mapInnovationEvent(event, state);
     } else if (event is AttentionDetailsEvent) {
       yield _mapAttentionDetailsEvent(event, state);
+    } else if (event is FeelingsEvent) {
+      yield _mapFeelingsEvent(event, state);
     } else if (event is LoadQuizData) {
       yield* _mapLoadQuizData();
     }
   }
 
   Stream<RatingState> _mapLoadQuizData() async* {
+    
     List<RatingData> data = await _ratingService.readData();
     yield QuizLoaded(data: data);
   }
@@ -73,15 +78,25 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
     return state.copyWith(attentionDetails: event.attentionDetails);
   }
 
+  RatingState _mapFeelingsEvent(FeelingsEvent event, RatingState state) {
+    print('FeelingEvents');
+
+    return state.copyWith(feelings: event.feelings);
+  }
+
   Stream<RatingState> _mapSendQuiz(SendQuiz event, RatingState state) async* {
+    String quizname = await _preferenceRepository.getData('data');
     yield QuizSended();
 
     _ratingService.createData(
+        quizname,
         event.displayName,
+        state.feelings,
         state.clientService,
         state.teamWork,
         state.confidence,
         state.innovation,
         state.attentionDetails);
+    print('Send data quiz');
   }
 }
