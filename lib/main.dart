@@ -53,7 +53,6 @@ class MyApp extends StatelessWidget {
         } else if (state is AuthenticationAdmin) {
           return AdminPage(
             user: state.user,
-            data: state.data,
           );
         } else if (state is AuthenticationLoading) {
           return SplashPage();
@@ -64,7 +63,7 @@ class MyApp extends StatelessWidget {
             ),
           );
         } else if (state is AuthenticationIntroSlider) {
-            return IntroPage();
+          return IntroPage();
         } else {
           return LoginPage();
         }

@@ -26,8 +26,10 @@ class RatingService {
   }
 
   readData() async {
-     String quizname = await _preferenceRepository.getData('data');
+    String quizname = await _preferenceRepository.getData('data');
     Map data;
+    final result = databaseReference.child(quizname).onValue;
+
     await databaseReference
         .child(quizname)
         .once()

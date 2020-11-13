@@ -43,24 +43,12 @@ class RegisterForm extends StatelessWidget {
         painter: BackGround(),
         child: BlocProvider<LoginBloc>(
             create: (context) => LoginBloc(context.bloc<AuthBloc>()),
-            child: BlocListener<AuthBloc, AuthState>(
+            child: BlocListener<LoginBloc, LoginState>(
               listener: (context, state) {
-                if (state is AuthenticationAuthenticated) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => QuizPage(
-                                user: state.user,
-                              )));
-                } else if (state is AuthenticationNotAuthenticated) {
-                  return Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => LoginPage()));
-                } else if (state is AuthenticationAdmin) {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              AdminPage(user: state.user, data: state.data)));
+                if (state is RegisterSuccess) {
+                  Scaffold.of(context).showSnackBar(SnackBar(
+                    content: Text('User successfully created'),
+                  ));
                 }
               },
               child: BlocBuilder<LoginBloc, LoginState>(

@@ -120,83 +120,88 @@ class _QuizPageState extends State<QuizPage>
         backgroundColor: Colors.transparent,
         resizeToAvoidBottomInset: false,
         body: PageView(
+          allowImplicitScrolling: false,
           controller: _controller,
-          physics: new AlwaysScrollableScrollPhysics(),
+          physics: new NeverScrollableScrollPhysics(),
           scrollDirection: Axis.horizontal,
           children: [
+            //QUIZ PAGE
             BlocProvider<RatingBloc>(
               create: (context) => RatingBloc(RatingInitial()),
               child: BlocBuilder<RatingBloc, RatingState>(
                 builder: (context, state) {
-                  return Column(
-                    children: [
-                      _appBar(wp(8), hp(10)),
-                      _headerText(wp(5), widget.user.displayName),
-                      SizedBox(
-                        height: hp(4),
-                      ),
-                      _title(wp(6)),
-                      SizedBox(
-                        height: hp(4),
-                      ),
-                      _flareActor(wp(80), hp(60)),
-                      SizedBox(
-                        height: hp(4),
-                      ),
-                      _slider(50, 340),
-                      SizedBox(
-                        height: hp(7),
-                      ),
-                      Container(
-                        width: wp(80),
-                        height: hp(8),
-                        margin: EdgeInsets.only(
-                            left: wp(7), right: wp(7), top: hp(2)),
-                        child: RaisedButton(
-                          elevation: 10,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          color: kdarklogincolor,
-                          onPressed: () {
-                            if (slideState == SlideState.Bad) {
-                              emotion = 'Bad';
-                              context
-                                  .bloc<RatingBloc>()
-                                  .add(FeelingsEvent(feelings: emotion));
-                              //controller_0To1.forward(from: 0.0);
-                              goToRating();
-                            } else if (slideState == SlideState.Ok) {
-                              emotion = 'Ok';
-                              context
-                                  .bloc<RatingBloc>()
-                                  .add(FeelingsEvent(feelings: emotion));
-                              goToRating();
-                            } else if (slideState == SlideState.Good) {
-                              emotion = 'Good';
-                              context
-                                  .bloc<RatingBloc>()
-                                  .add(FeelingsEvent(feelings: emotion));
-                              goToRating();
-                            } else {
-                              return null;
-                            }
-                          },
-                          child: Text(
-                            "Next",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontSize: wp(4),
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
-                          ),
+                  return Container(
+                    child: Column(
+                      children: [
+                        _appBar(wp(8), hp(10)),
+                        _headerText(wp(5)),
+                        SizedBox(
+                          height: hp(4),
                         ),
-                      )
-                    ],
+                        _title(wp(6)),
+                        SizedBox(
+                          height: hp(4),
+                        ),
+                        _flareActor(wp(80), hp(60)),
+                        SizedBox(
+                          height: hp(4),
+                        ),
+                        _slider(50, 340),
+                        SizedBox(
+                          height: hp(7),
+                        ),
+                        Container(
+                          width: wp(80),
+                          height: hp(8),
+                          margin: EdgeInsets.only(
+                              left: wp(7), right: wp(7), top: hp(2)),
+                          child: RaisedButton(
+                            elevation: 10,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30.0),
+                            ),
+                            color: kdarklogincolor,
+                            onPressed: () {
+                              if (slideState == SlideState.Bad) {
+                                emotion = 'Bad';
+                                context
+                                    .bloc<RatingBloc>()
+                                    .add(FeelingsEvent(feelings: emotion));
+                                //controller_0To1.forward(from: 0.0);
+                                goToRating();
+                              } else if (slideState == SlideState.Ok) {
+                                emotion = 'Ok';
+                                context
+                                    .bloc<RatingBloc>()
+                                    .add(FeelingsEvent(feelings: emotion));
+                                goToRating();
+                              } else if (slideState == SlideState.Good) {
+                                emotion = 'Good';
+                                context
+                                    .bloc<RatingBloc>()
+                                    .add(FeelingsEvent(feelings: emotion));
+                                goToRating();
+                              } else {
+                                return null;
+                              }
+                            },
+                            child: Text(
+                              "Next",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  fontSize: wp(4),
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
                   );
                 },
               ),
             ),
+            //RATING PAGE
             BlocProvider<RatingBloc>(
               create: (context) => RatingBloc(RatingInitial())
                 ..add(FeelingsEvent(feelings: emotion)),
@@ -237,7 +242,7 @@ class _QuizPageState extends State<QuizPage>
                       child: ListView(
                         children: <Widget>[
                           Padding(
-                            padding: EdgeInsets.all(wp(6)),
+                            padding: EdgeInsets.only(left: wp(5), top: hp(3)),
                             child: Row(
                               children: [
                                 IconButton(
@@ -267,7 +272,7 @@ class _QuizPageState extends State<QuizPage>
                               color: kdarklogincolor,
                               onPressed: () => context
                                   .bloc<RatingBloc>()
-                                  .add(SendQuiz(widget.user.displayName)),
+                                  .add(SendQuiz(widget.user.uid)),
                               child: Text(
                                 "Send",
                                 textAlign: TextAlign.center,
@@ -344,7 +349,7 @@ class _QuizPageState extends State<QuizPage>
                     context
                         .bloc<RatingBloc>()
                         .add(InnovationEvent(innovation: rating));
-                    break;
+                    break;  
                   case 'Attention Details':
                     context
                         .bloc<RatingBloc>()
@@ -392,7 +397,7 @@ class _QuizPageState extends State<QuizPage>
         ),
       );
 
-  _headerText(double wp, String name) => Padding(
+  _headerText(double wp) => Padding(
         padding: EdgeInsets.symmetric(horizontal: wp),
         child: Text(
           'How do you feel today ?',

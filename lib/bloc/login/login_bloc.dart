@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:connectivity/connectivity.dart';
+
 import 'package:equatable/equatable.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_huntlng/bloc/auth/auth_bloc.dart';
 import 'package:hr_huntlng/models/password.dart';
+import 'package:hr_huntlng/models/rating.dart';
 import 'package:hr_huntlng/models/username.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/preferences/preferences_repository.dart';
+import 'package:hr_huntlng/repository/rating/rating_service.dart';
 
 part 'login_event.dart';
 part 'login_state.dart';
@@ -15,6 +19,7 @@ part 'login_state.dart';
 class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final AuthBloc _authenticationBloc;
   AuthService _authenticationService = AuthService();
+  RatingService _ratingService = RatingService();
   PreferenceRepository _preferenceRepository = PreferenceRepository();
   String quizname;
   LoginBloc(AuthBloc authenticationBloc)
@@ -44,7 +49,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
       yield* _mapSaveQuizname(event);
     } else if (event is LoadQuizNameEvent) {
       yield* _mapLoadQuizNameEvent();
+    } else if (event is LoginAnonymusly) {
+      yield* _mapLoginAnonymusly();
     }
+  }
+
+  Stream<LoginState> _mapLoginAnonymusly() async* {
+    User user = await _authenticationService.signInAnonymus();
+    yield LoginLoading();
+    _authenticationBloc.add(UserLoggedIn(user: user));
   }
 
   Stream<LoginState> _mapLoadQuizNameEvent() async* {
@@ -60,7 +73,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     quizname = await _preferenceRepository.getQuizname();
     print('SaveQuizname: $quizname');
     yield SaveQuiznameSuccess(savedQuizname: quizname);
-    // yield SaveQuiznameSuccess(await _preferenceRepository.getData('data'));
   }
 
   Stream<LoginState> _mapLoginWithGoogle() async* {
@@ -69,6 +81,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     yield LoginLoading();
     if (user != null) {
       _authenticationBloc.add(UserLoggedIn(user: user));
+    } else {
+      yield LoginFailure(error: "Error sign in with Google acount");
     }
   }
 
@@ -77,15 +91,14 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     yield RegisterLoading();
     User user = await _authenticationService.createAccount(
         state.username.value, state.password.value);
-    User updateUser =
-        await _authenticationService.updateProfile(user, state.displayName);
-    // yield RegisterSuccess();
-    await _authenticationService.signInWithEmailAndPassword(
-        state.username.value, state.password.value);
 
-    _authenticationBloc.add(UserLoggedIn(user: updateUser));
-    yield LoginSuccess();
-    yield LoginInitial();
+    await _authenticationService.updateProfile(user, state.displayName);
+    yield RegisterSuccess();
+
+    // await _authenticationService.signInWithEmailAndPassword(
+    //     state.username.value, state.password.value);
+
+    // _authenticationBloc.add(UserLoggedIn(user: updateUser));
   }
 
   LoginState _mapRegisterDisplayNameChanged(
@@ -119,21 +132,33 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     if (event.username.isEmpty && event.password.isEmpty) {
       yield LoginFailure(error: 'Please fill the gaps');
     } else {
-      try {
-        yield LoginLoading();
-
+      yield LoginLoading();
+      var connectivityResult = await (Connectivity().checkConnectivity());
+      if (connectivityResult == ConnectivityResult.mobile ||
+          connectivityResult == ConnectivityResult.wifi) {
         User user = await _authenticationService.signInWithEmailAndPassword(
             event.username, event.password);
+
         yield LoginSuccess();
         if (user != null) {
-          // push new authentication event
-          _authenticationBloc.add(UserLoggedIn(user: user));
+          if (user.email.contains("@admin.com")) {
+            try {
+              // push new authentication event
+              _authenticationBloc.add(UserLoggedIn(user: user));
+            } catch (e) {
+              print('Login :No data in Admin');
+              yield LoginFailure(error: "No data in Admin");
+              await _authenticationService.signOut();
+            }
+          } else {
+            // push new authentication event
+            _authenticationBloc.add(UserLoggedIn(user: user));
+          }
         } else {
           yield LoginFailure(error: 'Incorrect password or email');
         }
-      } catch (e) {
-        print('failed to connect');
-        yield LoginFailure(error: 'Failed to connect');
+      } else {
+        yield LoginFailure(error: "Fail to connect");
       }
     }
   }

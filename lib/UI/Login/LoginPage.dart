@@ -35,28 +35,13 @@ class LoginPage extends StatelessWidget {
   }
 }
 
-class SignInForm extends StatefulWidget {
-  SignInForm({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  _SignInFormState createState() => _SignInFormState();
-}
-
-class _SignInFormState extends State<SignInForm> {
+class SignInForm extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _quiznameController = TextEditingController();
 
-  String quizname;
-  SharedPreferences sharedPreferences;
-  // AnimationController _animationController;
-  // Animation<double> _animationLogin;
-
   @override
   Widget build(BuildContext context) {
-    // QuizNameNotifier _quizNameNotifier = Provider.of<QuizNameNotifier>(context);
     final Function wp = Screen(context).wp;
     final Function hp = Screen(context).hp;
     print(wp(100));
@@ -83,7 +68,7 @@ class _SignInFormState extends State<SignInForm> {
       },
       child: BlocBuilder<LoginBloc, LoginState>(
         builder: (context, state) {
-          if (state is LoginLoading) {
+          if (state is LoginLoading || state is LoginSuccess) {
             return Container(
               width: wp(100),
               height: hp(100),
@@ -200,7 +185,7 @@ class _SignInFormState extends State<SignInForm> {
                         ? Container()
                         : Positioned(
                             top: hp(20),
-                            left: wp(14),
+                            left: wp(18),
                             child: Text(
                               'Quiz of\nfeelings',
                               style: TextStyle(
@@ -323,7 +308,12 @@ class _SignInFormState extends State<SignInForm> {
                             onTap: state.username.invalid == true ||
                                     state.password.invalid == true
                                 ? null
-                                : _onLoginButtonPressed,
+                                : () {
+                                    _onLoginButtonPressed();
+                                    context
+                                        .bloc<LoginBloc>()
+                                        .add(LoadQuizNameEvent());
+                                  },
                             child: ClipOval(
                               child: Container(
                                 decoration: BoxDecoration(
@@ -347,7 +337,7 @@ class _SignInFormState extends State<SignInForm> {
                     Visibility(
                       visible: !isKeyboardVisible,
                       child: Positioned(
-                        bottom: hp(6),
+                        bottom: hp(4),
                         left: wp(10),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -356,7 +346,7 @@ class _SignInFormState extends State<SignInForm> {
                               onTap: () => Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) => RegisterPage())),
+                                      builder: (_) => RegisterPage())),
                               child: Text(
                                 'Sign up',
                                 style: TextStyle(
@@ -366,7 +356,7 @@ class _SignInFormState extends State<SignInForm> {
                               ),
                             ),
                             SizedBox(
-                              width: wp(26),
+                              width: wp(28),
                             ),
                             GestureDetector(
                               onTap: () => Navigator.push(
@@ -390,6 +380,38 @@ class _SignInFormState extends State<SignInForm> {
                         ),
                       ),
                     ),
+                    // Visibility(
+                    //   visible: !isKeyboardVisible,
+                    //   child: Positioned(
+                    //     bottom: hp(8),
+                    //     left: wp(24),
+                    //     right: wp(24),
+                    //     child: ElevatedButton(
+                    //         style: ButtonStyle(
+                    //             backgroundColor:
+                    //                 MaterialStateProperty.all(kdarklogincolor)),
+                    //         onPressed: () {
+                    //           context.bloc<LoginBloc>().add(LoginWithGoogle());
+                    //           context
+                    //               .bloc<LoginBloc>()
+                    //               .add(LoadQuizNameEvent());
+                    //         },
+                    //         child: Row(
+                    //           mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    //           children: [
+                    //             Text(
+                    //               'Sign in with Google',
+                    //               style: TextStyle(fontFamily: fontSintonyBold),
+                    //             ),
+                    //             Icon(
+                    //               FontAwesomeIcons.google,
+                    //               color: kwhitecolor,
+                    //               size: wp(4),
+                    //             ),
+                    //           ],
+                    //         )),
+                    //   ),
+                    // ),
                     Visibility(
                       visible: !isKeyboardVisible,
                       child: Positioned(
@@ -400,20 +422,18 @@ class _SignInFormState extends State<SignInForm> {
                             style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.all(kdarklogincolor)),
-                            onPressed: () => context
-                                .bloc<LoginBloc>()
-                                .add(LoginWithGoogle()),
+                            onPressed: () {
+                              context.bloc<LoginBloc>().add(LoginAnonymusly());
+                              context
+                                  .bloc<LoginBloc>()
+                                  .add(LoadQuizNameEvent());
+                            },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                  'Sign in with Google',
+                                  'Sign in Anonymously',
                                   style: TextStyle(fontFamily: fontSintonyBold),
-                                ),
-                                Icon(
-                                  FontAwesomeIcons.google,
-                                  color: kwhitecolor,
-                                  size: wp(4),
                                 ),
                               ],
                             )),

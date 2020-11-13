@@ -70,3 +70,5 @@ class SaveQuizname extends LoginEvent {
 class LoadQuizNameEvent extends LoginEvent{
   
 }
+
+class LoginAnonymusly extends LoginEvent{}

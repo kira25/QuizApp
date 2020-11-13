@@ -2,9 +2,13 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:hr_huntlng/models/quiztest.dart';
 import 'package:hr_huntlng/models/rating.dart';
 import 'package:hr_huntlng/repository/preferences/preferences_repository.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
+import 'package:charts_flutter/flutter.dart' as charts;
 
 part 'rating_event.dart';
 part 'rating_state.dart';
@@ -16,6 +20,14 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
 
   PreferenceRepository _preferenceRepository = PreferenceRepository();
   RatingService _ratingService = RatingService();
+  int sumAttentionDetails = 0;
+  int sumInnovation = 0;
+  int sumConfidence = 0;
+  int sumClientService = 0;
+  int sumTeamWork = 0;
+  int sumFeelingsBad = 0;
+  int sumFeelingsOk = 0;
+  int sumFeelingsGood = 0;
 
   @override
   Stream<RatingState> mapEventToState(
@@ -36,14 +48,18 @@ class RatingBloc extends Bloc<RatingEvent, RatingState> {
     } else if (event is FeelingsEvent) {
       yield _mapFeelingsEvent(event, state);
     } else if (event is LoadQuizData) {
-      yield* _mapLoadQuizData();
+      yield* _mapLoadQuizData(event, state);
     }
   }
 
-  Stream<RatingState> _mapLoadQuizData() async* {
-    
-    List<RatingData> data = await _ratingService.readData();
-    yield QuizLoaded(data: data);
+  Stream<RatingState> _mapLoadQuizData(
+      LoadQuizData event, RatingState state) async* {
+    var databaseOnValue = await _ratingService.readData();
+    if (await databaseOnValue.isEmpty == true) {
+      yield LoadQuizResults(loading: false);
+    } else {
+      yield LoadQuizResults(loading: true);
+    }
   }
 
   RatingState _mapClientServiceEvent(

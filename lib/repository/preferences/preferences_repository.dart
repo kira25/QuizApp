@@ -18,6 +18,13 @@ class PreferenceRepository {
     prefs.clear();
   }
 
+   Future<void> clearUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove("user");
+  }
+
+
+
   getQuizname() async {
     final prefs = await SharedPreferences.getInstance();
     String data = prefs.getString('data');

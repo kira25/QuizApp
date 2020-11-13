@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hr_huntlng/models/rating.dart';
 import 'package:hr_huntlng/repository/auth/auth_service.dart';
 import 'package:hr_huntlng/repository/rating/rating_service.dart';
+import 'package:connectivity/connectivity.dart';
 
 part 'auth_event.dart';
 part 'auth_state.dart';
@@ -53,34 +54,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     yield AuthenticationLoading(); // to display splash screen
     await Future.delayed(Duration(seconds: 2));
     print('AuthenticationLoading');
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile ||
+        connectivityResult == ConnectivityResult.wifi) {
+      try {
+        // a simulated delay
+        User currentUser = await _authenticationService.getCurrentuser();
 
-    try {
-      // a simulated delay
-      User currentUser = await _authenticationService.getCurrentuser();
-
-      if (currentUser != null) {
-        if (currentUser.email.contains('@admin.com')) {
-          List<RatingData> data = await _ratingService.readData();
-          yield AuthenticationAdmin(user: currentUser, data: data);
+        if (currentUser != null) {
+          if (currentUser.email != null) {
+            if (currentUser.email.contains('@admin.com')) {
+              yield AuthenticationAdmin(
+                user: currentUser,
+              );
+            } else {
+              yield AuthenticationAuthenticated(user: currentUser);
+            }
+          } else {
+            yield AuthenticationAuthenticated(user: currentUser);
+          }
         } else {
-          yield AuthenticationAuthenticated(user: currentUser);
+          await _authenticationService.signOut();
+
+          yield AuthenticationIntroSlider();
+          // yield AuthenticationNotAuthenticated();
         }
-      } else {
-        yield AuthenticationIntroSlider();
-        // yield AuthenticationNotAuthenticated();
+      } catch (e) {
+        yield AuthenticationFailure(
+            message: e.message ?? 'An unknown error occurred');
+        print('An unknown error occurred');
       }
-    } catch (e) {
-      yield AuthenticationFailure(
-          message: e.message ?? 'An unknown error occurred');
-      print('An unknown error occurred');
+    } else {
+      yield AuthenticationIntroSlider();
     }
   }
 
   Stream<AuthState> _mapUserLoggedInToState(UserLoggedIn event) async* {
     // yield AuthenticationLoading();
-    if (event.user.email.contains('@admin.com')) {
-      List<RatingData> data = await _ratingService.readData();
-      yield AuthenticationAdmin(user: event.user, data: data);
+    if (event.user.email != null) {
+      if (event.user.email.contains('@admin.com')) {
+        yield AuthenticationAdmin(
+          user: event.user,
+        );
+      } else {
+        yield AuthenticationAuthenticated(user: event.user);
+      }
     } else {
       yield AuthenticationAuthenticated(user: event.user);
     }

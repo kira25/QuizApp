@@ -18,9 +18,9 @@ environment:
 
 dependencies:
   flutter_rating_bar: ^3.0.1+1
-  firebase_database: ^4.1.0
+  firebase_database: ^4.3.0
   firebase_auth: ^0.18.1+1
-  firebase_core: ^0.5.0
+  firebase_core: ^0.5.2
   google_sign_in: ^4.5.4
   equatable: ^1.2.5
   flutter_bloc: ^6.0.5
@@ -42,6 +42,8 @@ dependencies:
   flutter_keyboard_visibility: ^3.2.2
   flare_flutter: ^2.0.6
   intro_slider: ^2.3.3
+  connectivity: ^1.0.0
+  pull_to_refresh: ^1.6.2
 
 dev_dependencies:
   flutter_test:
@@ -72,3 +74,4 @@ flutter:
 
 module:
   androidX: true
+

@@ -2,12 +2,16 @@ part of 'rating_bloc.dart';
 
 class RatingState extends Equatable {
   const RatingState(
-      {this.attentionDetails,
-      this.feelings,
-      this.innovation,
-      this.confidence,
-      this.teamWork,
-      this.clientService});
+      {this.attentionDetails = 3.0,
+      this.seriesList,
+      this.seriesListFeeling,
+      this.feelings = 'Bad',
+      this.innovation = 3.0,
+      this.confidence = 3.0,
+      this.teamWork = 3.0,
+      this.clientService = 3.0,
+      this.event,
+      this.loadingResults = false});
 
   final double attentionDetails;
   final double innovation;
@@ -15,6 +19,10 @@ class RatingState extends Equatable {
   final double teamWork;
   final double clientService;
   final String feelings;
+  final List<charts.Series<QuizTest, String>> seriesList;
+  final List<charts.Series<QuizTest, String>> seriesListFeeling;
+  final Stream<Event> event;
+  final bool loadingResults;
 
   RatingState copyWith(
       {attentionDetails,
@@ -22,15 +30,21 @@ class RatingState extends Equatable {
       confidence,
       teamWork,
       clientService,
-      feelings}) {
+      feelings,
+      seriesList,
+      seriesListFeeling,
+      event,
+      loadingResults}) {
     return RatingState(
-      feelings: feelings ?? this.feelings,
-      attentionDetails: attentionDetails ?? this.attentionDetails,
-      innovation: innovation ?? this.innovation,
-      confidence: confidence ?? this.confidence,
-      teamWork: teamWork ?? this.teamWork,
-      clientService: clientService ?? this.clientService,
-    );
+        feelings: feelings ?? this.feelings,
+        attentionDetails: attentionDetails ?? this.attentionDetails,
+        innovation: innovation ?? this.innovation,
+        confidence: confidence ?? this.confidence,
+        teamWork: teamWork ?? this.teamWork,
+        clientService: clientService ?? this.clientService,
+        seriesList: seriesList ?? this.seriesList,
+        seriesListFeeling: seriesListFeeling ?? this.seriesListFeeling,
+        loadingResults: loadingResults ?? this.loadingResults);
   }
 
   @override
@@ -47,10 +61,8 @@ class QuizLoading extends RatingState {
   List<Object> get props => [];
 }
 
-class QuizLoaded extends RatingState {
-  final List<RatingData> data;
+class LoadQuizResults extends RatingState {
+  final bool loading;
 
-  QuizLoaded({this.data});
-  @override
-  List<Object> get props => [data];
+  LoadQuizResults({this.loading = false});
 }
