@@ -97,7 +97,7 @@ class _QuizPageState extends State<QuizPage>
     _flareRateController = FlareRateController();
     SystemChrome.setEnabledSystemUIOverlays([]);
     _animationController =
-        AnimationController(vsync: this, duration: Duration(microseconds: 750))
+        AnimationController(duration: Duration(microseconds: 750), vsync: this)
           ..addListener(() {
             setState(() {});
           });
@@ -349,7 +349,7 @@ class _QuizPageState extends State<QuizPage>
                     context
                         .bloc<RatingBloc>()
                         .add(InnovationEvent(innovation: rating));
-                    break;  
+                    break;
                   case 'Attention Details':
                     context
                         .bloc<RatingBloc>()

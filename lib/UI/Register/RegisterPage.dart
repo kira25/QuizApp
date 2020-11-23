@@ -76,229 +76,176 @@ class RegisterForm extends StatelessWidget {
                       ),
                     );
                   }
-                  return SafeArea(
-                    child: Container(
-                      height: hp(100),
-                      width: wp(100),
-                      padding: EdgeInsets.all(wp(3)),
-                      child: Stack(
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.only(top: hp(2)),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: IconButton(
-                                      icon: Icon(Icons.arrow_back_ios),
-                                      color: kwhitecolor,
-                                      iconSize: wp(8),
-                                      onPressed: () => Navigator.pop(context)),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text('Create Account',
-                                      style: TextStyle(
-                                          fontFamily: fontOswaldBold,
-                                          fontSize: wp(8),
-                                          color: kwhitecolor)),
-                                ),
-                              ],
+                  return SingleChildScrollView(
+                    child: SafeArea(
+                      child: Container(
+                        height: hp(100),
+                        width: wp(100),
+                        padding: EdgeInsets.all(wp(3)),
+                        child: Column(
+                          children: [
+                            _header(context),
+                            SizedBox(
+                              height: hp(20),
                             ),
-                          ),
-                          Positioned(
-                            top: isKeyboardVisible == true ? hp(15) : hp(25),
-                            left: wp(10),
-                            right: wp(10),
-                            child: Container(
-                              child: Column(
-                                children: [
-                                  BlocBuilder<LoginBloc, LoginState>(
-                                    buildWhen: (previous, current) =>
-                                        previous.username != current.username,
-                                    builder: (context, state) {
-                                      return TextField(
-                                        style: TextStyle(
-                                            fontFamily: fontSintonyRegular,
-                                            color: kwhitecolor,
-                                            fontSize: wp(4.5)),
-                                        autofocus: false,
-                                        key: const Key(
-                                            'loginForm_usernameInput_textField'),
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        onChanged: (username) => context
-                                            .bloc<LoginBloc>()
-                                            .add(
-                                                LoginUsernameChanged(username)),
-                                        textAlign: TextAlign.left,
-                                        decoration: InputDecoration(
-                                          focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: wp(0.5),
-                                                  color: kwhitecolor)),
-                                          enabledBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  width: wp(0.5),
-                                                  color: kdarkprimarycolor)),
-                                          errorStyle: TextStyle(
-                                              fontFamily: fontOswaldRegular,
-                                              color: kaccentcolor,
-                                              fontSize: wp(4)),
-                                          errorText: state.username.invalid
-                                              ? 'Invalid username'
-                                              : null,
-                                          hintText: 'Email',
-                                          hintStyle:
-                                              TextStyle(color: kwhitecolor),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: hp(5),
-                                  ),
-                                  BlocBuilder<LoginBloc, LoginState>(
-                                    buildWhen: (previous, current) =>
-                                        previous.password != current.password,
-                                    builder: (context, state) {
-                                      return TextField(
-                                        style: TextStyle(
-                                            fontFamily: fontSintonyRegular,
-                                            color: kwhitecolor,
-                                            fontSize: wp(4.5)),
-                                        autofocus: false,
-                                        obscureText: true,
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        onChanged: (password) => context
-                                            .bloc<LoginBloc>()
-                                            .add(
-                                                LoginPasswordChanged(password)),
-                                        textAlign: TextAlign.left,
-                                        decoration: InputDecoration(
-                                            focusedBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    width: wp(0.5),
-                                                    color: kwhitecolor)),
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    width: wp(0.5),
-                                                    color: kdarkprimarycolor)),
-                                            errorStyle: TextStyle(
-                                                fontFamily: fontOswaldRegular,
-                                                color: kaccentcolor,
-                                                fontSize: wp(4)),
-                                            errorText: state.password.invalid
-                                                ? 'Invalid password'
-                                                : null,
-                                            hintStyle:
-                                                TextStyle(color: kwhitecolor),
-                                            hintText: 'Password'),
-                                      );
-                                    },
-                                  ),
-                                  SizedBox(
-                                    height: hp(5),
-                                  ),
-                                  BlocBuilder<LoginBloc, LoginState>(
-                                    buildWhen: (previous, current) =>
-                                        previous.displayName !=
-                                        current.displayName,
-                                    builder: (context, state) {
-                                      return TextField(
-                                        style: TextStyle(
-                                            fontFamily: fontSintonyRegular,
-                                            color: kwhitecolor,
-                                            fontSize: wp(4.5)),
-                                        autofocus: false,
-                                        keyboardType:
-                                            TextInputType.emailAddress,
-                                        onChanged: (displayName) => context
-                                            .bloc<LoginBloc>()
-                                            .add(RegisterDisplayNameChanged(
-                                                displayName)),
-                                        textAlign: TextAlign.left,
-                                        decoration: InputDecoration(
-                                            focusedBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    width: wp(0.5),
-                                                    color: kwhitecolor)),
-                                            enabledBorder: UnderlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    width: wp(0.5),
-                                                    color: kdarkprimarycolor)),
-                                            errorStyle: TextStyle(
-                                                fontFamily: fontOswaldRegular,
-                                                color: kaccentcolor,
-                                                fontSize: wp(4)),
-                                            hintStyle:
-                                                TextStyle(color: kwhitecolor),
-                                            hintText: 'Name'),
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
+                            _form(),
+                            SizedBox(
+                              height: hp(10),
                             ),
-                          ),
-                          Positioned(
-                            bottom: hp(15),
-                            left: wp(2),
-                            right: wp(2),
-                            child: Visibility(
-                              visible: !isKeyboardVisible,
-                              child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
-                                  children: [
-                                    Text(
-                                      'Sign up',
-                                      style: TextStyle(
-                                          fontFamily: fontOswaldBold,
-                                          fontSize: wp(6),
-                                          color: kwhitecolor),
-                                    ),
-                                    BlocBuilder<LoginBloc, LoginState>(
-                                      builder: (context, state) {
-                                        return CircleAvatar(
-                                          radius: wp(8),
-                                          backgroundColor: kdarklogincolor,
-                                          child: BlocBuilder<LoginBloc,
-                                              LoginState>(
-                                            builder: (context, state) {
-                                              return IconButton(
-                                                onPressed: state.username
-                                                                .invalid ==
-                                                            true ||
-                                                        state.password
-                                                                .invalid ==
-                                                            true
-                                                    ? null
-                                                    : () => context
-                                                        .bloc<LoginBloc>()
-                                                        .add(
-                                                            RegisterButtonPressed()),
-                                                icon: Icon(
-                                                  Icons.arrow_forward,
-                                                  color: Colors.white,
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  ]),
-                            ),
-                          ),
-                        ],
+                            _btnSignup(),
+                          ],
+                        ),
                       ),
                     ),
                   );
                 },
               ),
             )),
+      ),
+    );
+  }
+
+  Widget _btnSignup() {
+    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+      Text(
+        'Sign up',
+        style: TextStyle(
+            fontFamily: fontOswaldBold, fontSize: wp(6), color: kwhitecolor),
+      ),
+      BlocBuilder<LoginBloc, LoginState>(
+        builder: (context, state) {
+          return CircleAvatar(
+            radius: wp(8),
+            backgroundColor: kdarklogincolor,
+            child: BlocBuilder<LoginBloc, LoginState>(
+              builder: (context, state) {
+                return IconButton(
+                  onPressed: state.username.invalid == true ||
+                          state.password.invalid == true
+                      ? null
+                      : () => context
+                          .bloc<LoginBloc>()
+                          .add(RegisterButtonPressed()),
+                  icon: Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      )
+    ]);
+  }
+
+  Widget _header(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: hp(5)),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: IconButton(
+                icon: Icon(Icons.arrow_back_ios),
+                color: kwhitecolor,
+                iconSize: wp(8),
+                onPressed: () => Navigator.pop(context)),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text('Create Account',
+                style: TextStyle(
+                    fontFamily: fontOswaldBold,
+                    fontSize: wp(8),
+                    color: kwhitecolor)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _form() {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: wp(8)),
+      child: Column(
+        children: [
+          BlocBuilder<LoginBloc, LoginState>(
+            buildWhen: (previous, current) =>
+                previous.username != current.username,
+            builder: (context, state) {
+              return TextField(
+                style: TextStyle(
+                    fontFamily: fontSintonyRegular,
+                    color: kwhitecolor,
+                    fontSize: wp(4.5)),
+                autofocus: false,
+                key: const Key('loginForm_usernameInput_textField'),
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (username) => context
+                    .bloc<LoginBloc>()
+                    .add(LoginUsernameChanged(username)),
+                textAlign: TextAlign.left,
+                decoration: InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(width: wp(0.5), color: kwhitecolor)),
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(width: wp(0.5), color: kdarkprimarycolor)),
+                  errorStyle: TextStyle(
+                      fontFamily: fontOswaldRegular,
+                      color: kaccentcolor,
+                      fontSize: wp(4)),
+                  errorText: state.username.invalid ? 'Invalid username' : null,
+                  hintText: 'Email',
+                  hintStyle: TextStyle(color: kwhitecolor),
+                ),
+              );
+            },
+          ),
+          SizedBox(
+            height: hp(5),
+          ),
+          BlocBuilder<LoginBloc, LoginState>(
+            buildWhen: (previous, current) =>
+                previous.password != current.password,
+            builder: (context, state) {
+              return TextField(
+                style: TextStyle(
+                    fontFamily: fontSintonyRegular,
+                    color: kwhitecolor,
+                    fontSize: wp(4.5)),
+                autofocus: false,
+                obscureText: true,
+                keyboardType: TextInputType.emailAddress,
+                onChanged: (password) => context
+                    .bloc<LoginBloc>()
+                    .add(LoginPasswordChanged(password)),
+                textAlign: TextAlign.left,
+                decoration: InputDecoration(
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(width: wp(0.5), color: kwhitecolor)),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                            width: wp(0.5), color: kdarkprimarycolor)),
+                    errorStyle: TextStyle(
+                        fontFamily: fontOswaldRegular,
+                        color: kaccentcolor,
+                        fontSize: wp(4)),
+                    errorText:
+                        state.password.invalid ? 'Invalid password' : null,
+                    hintStyle: TextStyle(color: kwhitecolor),
+                    hintText: 'Password'),
+              );
+            },
+          ),
+          SizedBox(
+            height: hp(5),
+          ),
+          
+        ],
       ),
     );
   }

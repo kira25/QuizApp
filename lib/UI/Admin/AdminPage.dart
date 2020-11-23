@@ -92,7 +92,8 @@ class _AdminPageState extends State<AdminPage> with TickerProviderStateMixin {
             builder: (context, state) {
               if (state is LoadQuizResults) {
                 if (state.loading == false) {
-                  return CircularProgressIndicator();
+                  return Container(
+                      child: Center(child: CircularProgressIndicator()));
                 } else {
                   return TabBarView(
                     controller: _tabController,

@@ -8,8 +8,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 class IntroPage extends StatelessWidget {
   
 
+  
+
   @override
   Widget build(BuildContext context) {
+    precacheImage(AssetImage('./assets/pick_quizname.PNG'), context);
+    precacheImage(AssetImage('./assets/create_account.PNG'), context);
+    precacheImage(AssetImage('./assets/quiz_time.png'), context);
+    precacheImage(AssetImage('./assets/quiz_results.png'), context);
     double height = MediaQuery.of(context).size.height;
     double width = MediaQuery.of(context).size.width;
     return Container(

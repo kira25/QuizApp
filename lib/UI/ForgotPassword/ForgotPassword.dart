@@ -51,6 +51,11 @@ class SendEmail extends StatelessWidget {
   Widget build(BuildContext context) {
     _onForgotPassword() {
       context.bloc<LoginBloc>().add(LoginForgotPassword(emailController.text));
+      showDialog(
+          context: context,
+          child: AlertDialog(
+            title: Text('Check your inbox'),
+          ));
       Navigator.pop(context);
     }
 

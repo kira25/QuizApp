@@ -166,6 +166,7 @@ class SignInForm extends StatelessWidget {
                                   return AlertDialog(
                                     title: Text('Please insert your Quiz name'),
                                     content: TextField(
+                                        decoration: InputDecoration(),
                                         controller: _quiznameController,
                                         onEditingComplete: () {
                                           print('${_quiznameController.text}');
